@@ -12,7 +12,7 @@ extension CompareFeature {
         state.isLoadingNewFile = true
       }
       return .run { send in
-        guard let url = try? await tokenClient.pickFile() else { 
+        guard let url = try? await fileClient.pickFile() else { 
           await send(.internal(.loadingFailed("Aucun fichier sélectionné")))
           return 
         }
@@ -27,7 +27,7 @@ extension CompareFeature {
         state.isLoadingNewFile = true
       }
       return .run { send in
-        guard let url = await tokenClient.handleFileDrop(provider) else { 
+        guard let url = await fileClient.handleFileDrop(provider) else { 
           await send(.internal(.loadingFailed("Impossible de lire le fichier")))
           return 
         }

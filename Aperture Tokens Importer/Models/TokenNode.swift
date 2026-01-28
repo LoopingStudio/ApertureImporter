@@ -1,7 +1,5 @@
 import Foundation
 
-
-
 public enum NodeType: String, Codable, Equatable, Sendable {
   case group
   case token

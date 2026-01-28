@@ -1,0 +1,33 @@
+# MacOS files
+.DS_Store
+
+# Xcode user files
+xcuserdata/
+
+# SPM files
+.build/
+.swiftpm/
+
+# Fastlane files
+report.xml
+test_output/
+
+# Bitrise files
+.bitrise.secrets.yml
+
+# NPM files
+node_modules/
+
+# AppleLabCLI files
+Tooling/CLI/AppleLabCLI/Bin
+
+# Test files
+Poc/
+
+# Backend files
+.env
+/Apps/Picta/PictaAppMigration/PictaAppMigration.xcodeproj/project.xcworkspace/xcuserdata/lgriffie.xcuserdatad/UserInterfaceState.xcuserstate
+
+# Android Studio files
+.idea/
+

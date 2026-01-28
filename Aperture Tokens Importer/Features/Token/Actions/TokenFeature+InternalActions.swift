@@ -19,7 +19,7 @@ extension TokenFeature {
     case .loadFile(let url):
       return .run { send in
         do {
-          let tokenExport = try await tokenClient.loadJSON(url)
+          let tokenExport = try await fileClient.loadTokenExport(url)
           await send(.internal(.exportLoaded(tokenExport)))
         } catch {
           print("Erreur chargement: \(error)")

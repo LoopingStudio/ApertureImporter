@@ -5,6 +5,7 @@ import SwiftUI
 @Reducer
 public struct TokenFeature: Sendable {
   @Dependency(\.tokenClient) var tokenClient
+  @Dependency(\.fileClient) var fileClient
 
   @ObservableState
   public struct State: Equatable {

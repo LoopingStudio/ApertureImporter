@@ -1,67 +1,23 @@
 import AppKit
+import Dependencies
 import Foundation
 import UniformTypeIdentifiers
 
 actor TokenService {
-  
+  @Dependency(\.fileClient) var fileClient
+
   // MARK: - Constants
   private enum ExportFiles {
     static let colorsXCAssets = "Colors.xcassets"
     static let apertureColors = "Aperture+Colors.swift"
   }
-  
-  func loadTokenExport(from url: URL) throws -> TokenExport {
-    let data = try Data(contentsOf: url)
-    
-    // Try to decode the new format first (with metadata wrapper)
-    do {
-      return try JSONDecoder().decode(TokenExport.self, from: data)
-    } catch {
-      // Fallback to old format (direct array) - create default metadata
-      let tokens = try JSONDecoder().decode([TokenNode].self, from: data)
-      let defaultMetadata = TokenMetadata(
-        exportedAt: "Date inconnue",
-        timestamp: 0,
-        version: "Inconnue",
-        generator: "Fichier legacy"
-      )
-      return TokenExport(metadata: defaultMetadata, tokens: tokens)
-    }
-  }
-  
-  @MainActor
-  func handleFileDrop(provider: NSItemProvider) async -> URL? {
-    return await withCheckedContinuation { continuation in
-      provider.loadDataRepresentation(forTypeIdentifier: UTType.json.identifier) { data, _ in
-        if let data = data {
-          let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("dropped_tokens.json")
-          do {
-            try data.write(to: tmpURL)
-            continuation.resume(returning: tmpURL)
-          } catch {
-            print("Erreur écriture fichier temporaire: \(error)")
-            continuation.resume(returning: nil)
-          }
-        } else {
-          continuation.resume(returning: nil)
-        }
-      }
-    }
-  }
 
   @MainActor
-  func exportDesignSystem(_ nodes: [TokenNode]) async throws {
+  func exportDesignSystem(nodes: [TokenNode]) async throws {
     let filtered = await filterEnabledNodes(nodes)
-    
-    let openPanel = NSOpenPanel()
-    openPanel.canCreateDirectories = true
-    openPanel.canChooseDirectories = true
-    openPanel.canChooseFiles = false
-    openPanel.allowsMultipleSelection = false
-    openPanel.message = "Choisissez où créer le design system"
-    
-    guard openPanel.runModal() == .OK, let destinationURL = openPanel.url else { return }
-    
+
+    guard let destinationURL = try await fileClient.pickDirectory("Choisissez où créer le design system") else { return }
+
     // Demander l'accès sécurisé au dossier
     let canAccess = destinationURL.startAccessingSecurityScopedResource()
     defer {
@@ -115,19 +71,6 @@ actor TokenService {
     }
   }
 
-  @MainActor
-  func pickFile() async throws -> URL? {
-    let openPanel = NSOpenPanel()
-    openPanel.allowedContentTypes = [.json]
-    openPanel.allowsMultipleSelection = false
-    openPanel.canChooseDirectories = false
-    openPanel.canChooseFiles = true
-    openPanel.message = "Sélectionnez votre fichier aperture_tokens.json"
-
-    guard openPanel.runModal() == .OK else { return nil }
-    return openPanel.url
-  }
-
   // Helper pur (hors de la struct pour être invisible)
   private func filterEnabledNodes(_ nodes: [TokenNode]) -> [TokenNode] {
     var result: [TokenNode] = []
@@ -178,24 +121,25 @@ actor TokenService {
     let brandURL = parentURL.appendingPathComponent(brand)
     try FileManager.default.createDirectory(at: brandURL, withIntermediateDirectories: true)
     
-    // Contents.json du brand
-    let brandContents = """
+    // Créer Contents.json pour chaque dossier
+    let folderContents = """
     {
       "info" : {
         "author" : "xcode",
         "version" : 1
+      },
+      "properties" : {
+        "provides-namespace" : true
       }
     }
     """
-    try brandContents.write(to: brandURL.appendingPathComponent("Contents.json"), atomically: true, encoding: .utf8)
-    
-    // Pour chaque token, créer la hiérarchie complète
+    try folderContents.write(to: brandURL.appendingPathComponent("Contents.json"), atomically: true, encoding: .utf8)
+
     for token in tokens {
-      guard let path = token.path else { continue }
-      guard let modes = token.modes else { continue }
-      
+      guard let path = token.path, let modes = token.modes else { continue }
+
       // Vérifier si ce token a le thème pour cette brand
-      let hasTheme = (brand == Brand.legacy && modes.legacy != nil) || 
+      let hasTheme = (brand == Brand.legacy && modes.legacy != nil) ||
                      (brand == Brand.newBrand && modes.newBrand != nil)
       guard hasTheme else { continue }
       
@@ -203,27 +147,14 @@ actor TokenService {
       let pathComponents = path.split(separator: "/")
       var currentURL = brandURL
       
-      // Créer chaque niveau de dossier
-      for component in pathComponents {
+      // Créer chaque niveau de dossier (sauf le dernier qui est le token)
+      for component in pathComponents.dropLast() {
         currentURL = currentURL.appendingPathComponent(String(component))
         try FileManager.default.createDirectory(at: currentURL, withIntermediateDirectories: true)
-        
-        // Créer Contents.json pour chaque dossier
-        let folderContents = """
-        {
-          "info" : {
-            "author" : "xcode",
-            "version" : 1
-          },
-          "properties" : {
-            "provides-namespace" : true
-          }
-        }
-        """
         try folderContents.write(to: currentURL.appendingPathComponent("Contents.json"), atomically: true, encoding: .utf8)
       }
       
-      // Créer le colorset dans le dernier dossier
+      // Créer le colorset dans le dernier dossier (currentURL contient maintenant le bon parent)
       try await createBrandColorSet(for: token, brand: brand, at: currentURL)
     }
   }

@@ -7,7 +7,7 @@ extension CompareFeature {
     case .loadFile(let fileType, let url):
       return .run { send in
         do {
-          let tokenExport = try await tokenClient.loadJSON(url)
+          let tokenExport = try await fileClient.loadTokenExport(url)
           await send(.internal(.exportLoaded(fileType, tokenExport)))
         } catch {
           await send(.internal(.loadingFailed("Erreur chargement fichier: \(error.localizedDescription)")))

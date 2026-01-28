@@ -1,8 +1,10 @@
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
+import Dependencies
 
 actor ComparisonService {
+  @Dependency(\.fileClient) var fileClient
   
   func compareTokens(oldTokens: [TokenNode], newTokens: [TokenNode]) async -> ComparisonChanges {
     let oldFlat = flattenTokens(oldTokens)
@@ -144,17 +146,13 @@ actor ComparisonService {
       newMetadata: newMetadata
     )
 
-    let savePanel = NSSavePanel()
-    savePanel.allowedContentTypes = [.plainText]
-    savePanel.nameFieldStringValue = "comparison-export-notion.md"
-    savePanel.title = "Exporter la comparaison pour Notion"
-    savePanel.message = "Choisissez où sauvegarder l'export Markdown pour Notion"
-    
-    guard savePanel.runModal() == .OK, let url = savePanel.url else {
-      throw NSError(domain: "ComparisonService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Export annulé"])
-    }
-    
-    try markdownContent.write(to: url, atomically: true, encoding: .utf8)
+    let data = markdownContent.data(using: .utf8)!
+    _ = try await fileClient.saveToFile(
+      data,
+      "comparison-export-notion.md", 
+      .plainText,
+      "Exporter la comparaison pour Notion"
+    )
   }
   
   private func createNotionMarkdown(

@@ -6,6 +6,7 @@ import SwiftUI
 public struct CompareFeature: Sendable {
   @Dependency(\.tokenClient) var tokenClient
   @Dependency(\.comparisonClient) var comparisonClient
+  @Dependency(\.fileClient) var fileClient
 
   @ObservableState
   public struct State: Equatable {
