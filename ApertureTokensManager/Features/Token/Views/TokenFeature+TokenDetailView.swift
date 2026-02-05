@@ -6,9 +6,22 @@ struct TokenDetailView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       VStack(alignment: .leading, spacing: 8) {
-        Text(node.name)
-          .font(.title2)
-          .fontWeight(.semibold)
+        HStack {
+          Text(node.name)
+            .font(.title2)
+            .fontWeight(.semibold)
+          
+          if !node.isEnabled {
+            Text("Exclu")
+              .font(.caption2)
+              .fontWeight(.medium)
+              .padding(.horizontal, 6)
+              .padding(.vertical, 2)
+              .background(Color.orange.opacity(0.2))
+              .foregroundStyle(.orange)
+              .clipShape(Capsule())
+          }
+        }
         
         HStack {
           Image(systemName: node.type == .group ? "folder.fill" : "paintbrush.fill")
@@ -96,9 +109,22 @@ struct TokenDetailView: View {
   private func tokenRow(token: TokenNode) -> some View {
     HStack(spacing: 12) {
       VStack(alignment: .leading, spacing: 4) {
-        Text(token.name)
-          .font(.subheadline)
-          .fontWeight(.medium)
+        HStack(spacing: 6) {
+          Text(token.name)
+            .font(.subheadline)
+            .fontWeight(.medium)
+          
+          if !token.isEnabled {
+            Text("Exclu")
+              .font(.caption2)
+              .fontWeight(.medium)
+              .padding(.horizontal, 4)
+              .padding(.vertical, 1)
+              .background(Color.orange.opacity(0.2))
+              .foregroundStyle(.orange)
+              .clipShape(Capsule())
+          }
+        }
         
         if let path = token.path {
           Text(path)
@@ -114,6 +140,7 @@ struct TokenDetailView: View {
         CompactColorPreview(modes: modes)
       }
     }
+    .opacity(token.isEnabled ? 1.0 : 0.5)
   }
 
   private func brandTheme(brandName: String, theme: TokenThemes.Appearance) -> some View {

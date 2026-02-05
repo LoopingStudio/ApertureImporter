@@ -26,8 +26,7 @@ public struct TokenFeature: Sendable {
     var importHistory: [ImportHistoryEntry] = []
     
     // Export filters (persisted)
-    @Shared(.excludeTokensStartingWithHash) var excludeTokensStartingWithHash
-    @Shared(.excludeTokensEndingWithHover) var excludeTokensEndingWithHover
+    @Shared(.tokenFilters) var filters
     
     // UI State
     var splitViewRatio: Double = 0.6
@@ -63,6 +62,8 @@ public struct TokenFeature: Sendable {
       case fileLoadingFailed(String)
       case applyFilters
       case historyLoaded([ImportHistoryEntry])
+      case filtersChanged(TokenFilters)
+      case observeFilters
     }
 
     @CasePathable

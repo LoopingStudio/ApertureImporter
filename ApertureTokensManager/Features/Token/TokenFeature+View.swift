@@ -44,11 +44,15 @@ struct ApertureTokensView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
           
-          Toggle("Exclure tokens commençant par #", isOn: $store.excludeTokensStartingWithHash)
+          Toggle("Exclure tokens commençant par #", isOn: $store.filters.excludeTokensStartingWithHash)
             .font(.caption)
             .controlSize(.mini)
           
-          Toggle("Exclure tokens finissant par _hover", isOn: $store.excludeTokensEndingWithHover)
+          Toggle("Exclure tokens finissant par _hover", isOn: $store.filters.excludeTokensEndingWithHover)
+            .font(.caption)
+            .controlSize(.mini)
+          
+          Toggle("Exclure groupe Utility", isOn: $store.filters.excludeUtilityGroup)
             .font(.caption)
             .controlSize(.mini)
           

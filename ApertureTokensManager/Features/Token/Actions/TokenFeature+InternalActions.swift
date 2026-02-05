@@ -1,3 +1,4 @@
+import Combine
 import ComposableArchitecture
 import Foundation
 
@@ -32,8 +33,13 @@ extension TokenFeature {
       state.isFileLoaded = true
       state.metadata = tokenExport.metadata
       state.currentFileURL = url
-      state.allNodes = buildFlatNodeList(tokenExport.tokens)
-      state.selectedNode = tokenExport.tokens.first
+      
+      // Appliquer les filtres initiaux avant de sélectionner
+      applyFiltersToNodes(state: &state)
+      
+      // Sélectionner le premier node après filtrage
+      state.allNodes = buildFlatNodeList(state.rootNodes)
+      state.selectedNode = state.rootNodes.first
       
       // Count leaf tokens (nodes with values)
       let tokenCount = countLeafTokens(tokenExport.tokens)
@@ -45,17 +51,30 @@ extension TokenFeature {
         metadata: tokenExport.metadata,
         tokenCount: tokenCount
       )
-      return .run { send in
-        await historyClient.addImportEntry(entry)
-        let history = await historyClient.getImportHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
+      
+      return .merge(
+        .send(.internal(.observeFilters)),
+        .run { send in
+          await historyClient.addImportEntry(entry)
+          let history = await historyClient.getImportHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      )
     case .historyLoaded(let history):
       state.importHistory = history
       return .none
     case .applyFilters:
       applyFiltersToNodes(state: &state)
       return .none
+    case .filtersChanged(let filters):
+      applyFiltersToNodes(state: &state, filters: filters)
+      return .none
+    case .observeFilters:
+      return .publisher {
+        state.$filters.publisher
+          .dropFirst()
+          .map { Action.internal(.filtersChanged($0)) }
+      }
     }
   }
   
@@ -91,10 +110,13 @@ extension TokenFeature {
   
   // Fonction pour appliquer les filtres aux nœuds
   func applyFiltersToNodes(state: inout State) {
+    applyFiltersToNodes(state: &state, filters: state.filters)
+  }
+  
+  func applyFiltersToNodes(state: inout State, filters: TokenFilters) {
     applyFiltersRecursively(
       nodes: &state.rootNodes,
-      excludeStartingWithHash: state.excludeTokensStartingWithHash,
-      excludeEndingWithHover: state.excludeTokensEndingWithHover
+      filters: filters
     )
     // Reconstruire la liste plate après filtrage
     state.allNodes = buildFlatNodeList(state.rootNodes)
@@ -102,43 +124,48 @@ extension TokenFeature {
   
   private func applyFiltersRecursively(
     nodes: inout [TokenNode],
-    excludeStartingWithHash: Bool,
-    excludeEndingWithHover: Bool
+    filters: TokenFilters,
+    forceDisabled: Bool = false
   ) {
     for i in 0..<nodes.count {
-      // Appliquer les filtres aux enfants d'abord
+      var shouldDisableChildren = forceDisabled
+      
+      // Filtrer le groupe Utility
+      if nodes[i].type == .group && nodes[i].name.lowercased() == "utility" {
+        if filters.excludeUtilityGroup {
+          nodes[i].isEnabled = false
+          shouldDisableChildren = true
+        } else if !forceDisabled {
+          nodes[i].isEnabled = true
+        }
+      }
+      
+      // Si forcé par un parent désactivé
+      if forceDisabled {
+        nodes[i].isEnabled = false
+      }
+      
+      // Appliquer les filtres au nœud courant s'il s'agit d'un token (et pas forcé désactivé)
+      if nodes[i].type == .token && !shouldDisableChildren {
+        var newIsEnabled = true
+        
+        if filters.excludeTokensStartingWithHash && nodes[i].name.hasPrefix("#") {
+          newIsEnabled = false
+        }
+        if filters.excludeTokensEndingWithHover && nodes[i].name.hasSuffix("_hover") {
+          newIsEnabled = false
+        }
+        
+        nodes[i].isEnabled = newIsEnabled
+      }
+      
+      // Appliquer les filtres aux enfants
       if nodes[i].children != nil {
         applyFiltersRecursively(
           nodes: &nodes[i].children!,
-          excludeStartingWithHash: excludeStartingWithHash,
-          excludeEndingWithHover: excludeEndingWithHover
+          filters: filters,
+          forceDisabled: shouldDisableChildren
         )
-      }
-      
-      // Appliquer les filtres au nœud courant s'il s'agit d'un token
-      if nodes[i].type == .token {
-        var newIsEnabled = true // Commencer par activé par défaut
-        
-        // Appliquer les filtres seulement si ils sont activés
-        if excludeStartingWithHash && nodes[i].name.hasPrefix("#") {
-          newIsEnabled = false
-        }
-        if excludeEndingWithHover && nodes[i].name.hasSuffix("_hover") {
-          newIsEnabled = false
-        }
-        
-        // Mettre à jour l'état enabled seulement si nécessaire
-        if nodes[i].isEnabled != newIsEnabled {
-          nodes[i] = TokenNode(
-            id: nodes[i].id,
-            name: nodes[i].name,
-            type: nodes[i].type,
-            path: nodes[i].path,
-            modes: nodes[i].modes,
-            children: nodes[i].children,
-            isEnabled: newIsEnabled
-          )
-        }
       }
     }
   }

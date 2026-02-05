@@ -28,12 +28,52 @@ extension SharedKey where Self == FileStorageKey<[ComparisonHistoryEntry]>.Defau
 
 // MARK: - Filter Settings
 
-extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  static var excludeTokensStartingWithHash: Self {
-    Self[.appStorage("filter_excludeHash"), default: false]
+public struct TokenFilters: Equatable, Sendable {
+  public var excludeTokensStartingWithHash: Bool = false
+  public var excludeTokensEndingWithHover: Bool = false
+  public var excludeUtilityGroup: Bool = false
+  
+  public init(
+    excludeTokensStartingWithHash: Bool = false,
+    excludeTokensEndingWithHover: Bool = false,
+    excludeUtilityGroup: Bool = false
+  ) {
+    self.excludeTokensStartingWithHash = excludeTokensStartingWithHash
+    self.excludeTokensEndingWithHover = excludeTokensEndingWithHover
+    self.excludeUtilityGroup = excludeUtilityGroup
   }
+  
+  enum CodingKeys: String, CodingKey {
+    case excludeTokensStartingWithHash
+    case excludeTokensEndingWithHover
+    case excludeUtilityGroup
+  }
+}
 
-  static var excludeTokensEndingWithHover: Self {
-    Self[.appStorage("filter_excludeHover"), default: false]
+extension TokenFilters: Decodable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    excludeTokensStartingWithHash = try container.decodeIfPresent(Bool.self, forKey: .excludeTokensStartingWithHash) ?? false
+    excludeTokensEndingWithHover = try container.decodeIfPresent(Bool.self, forKey: .excludeTokensEndingWithHover) ?? false
+    excludeUtilityGroup = try container.decodeIfPresent(Bool.self, forKey: .excludeUtilityGroup) ?? false
+  }
+}
+
+extension TokenFilters: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(excludeTokensStartingWithHash, forKey: .excludeTokensStartingWithHash)
+    try container.encode(excludeTokensEndingWithHover, forKey: .excludeTokensEndingWithHover)
+    try container.encode(excludeUtilityGroup, forKey: .excludeUtilityGroup)
+  }
+}
+
+extension URL {
+  static let tokenFilters = Self.documentsDirectory.appending(component: "token-filters.json")
+}
+
+extension SharedKey where Self == FileStorageKey<TokenFilters>.Default {
+  static var tokenFilters: Self {
+    Self[.fileStorage(.tokenFilters), default: TokenFilters()]
   }
 }
