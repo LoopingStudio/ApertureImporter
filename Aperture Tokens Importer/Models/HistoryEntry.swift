@@ -8,19 +8,22 @@ public struct ImportHistoryEntry: Codable, Identifiable, Equatable, Sendable {
   public let fileName: String
   public let bookmarkData: Data?
   public let metadata: TokenMetadata?
+  public let tokenCount: Int
   
   public init(
     id: UUID = UUID(),
     date: Date = Date(),
     fileName: String,
     bookmarkData: Data?,
-    metadata: TokenMetadata?
+    metadata: TokenMetadata?,
+    tokenCount: Int = 0
   ) {
     self.id = id
     self.date = date
     self.fileName = fileName
     self.bookmarkData = bookmarkData
     self.metadata = metadata
+    self.tokenCount = tokenCount
   }
   
   /// Resolves the bookmark to get the file URL

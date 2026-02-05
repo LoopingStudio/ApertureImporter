@@ -9,13 +9,11 @@ extension TokenFeature {
       state.loadingError = false
       state.errorMessage = nil
       return .none
-      
     case .fileLoadingFailed(let message):
       state.isLoading = false
       state.loadingError = true
       state.errorMessage = message
       return .none
-      
     case .loadFile(let url):
       return .run { send in
         do {
@@ -26,7 +24,6 @@ extension TokenFeature {
           await send(.internal(.fileLoadingFailed("Erreur de chargement du fichier JSON")))
         }
       }
-      
     case .exportLoaded(let tokenExport, let url):
       state.isLoading = false
       state.loadingError = false
@@ -38,33 +35,42 @@ extension TokenFeature {
       state.allNodes = buildFlatNodeList(tokenExport.tokens)
       state.selectedNode = tokenExport.tokens.first
       
+      // Count leaf tokens (nodes with values)
+      let tokenCount = countLeafTokens(tokenExport.tokens)
+      
       // Save to history
-      let fileName = url.lastPathComponent
-      let metadata = tokenExport.metadata
-      return .run { _ in
-        let bookmark = await historyClient.createBookmark(url)
-        let entry = ImportHistoryEntry(
-          fileName: fileName,
-          bookmarkData: bookmark,
-          metadata: metadata
-        )
-        await historyClient.saveImportEntry(entry)
-      }
-      
-    case .historyLoaded(let history):
-      state.importHistory = history
-      return .none
-      
-    case .historySaved:
+      let entry = ImportHistoryEntry(
+        fileName: url.lastPathComponent,
+        bookmarkData: url.securityScopedBookmark(),
+        metadata: tokenExport.metadata,
+        tokenCount: tokenCount
+      )
       return .run { send in
+        await historyClient.addImportEntry(entry)
         let history = await historyClient.getImportHistory()
         await send(.internal(.historyLoaded(history)))
       }
-      
+    case .historyLoaded(let history):
+      state.importHistory = history
+      return .none
     case .applyFilters:
       applyFiltersToNodes(state: &state)
       return .none
     }
+  }
+  
+  // Helper pour compter les tokens feuilles (ceux qui ont des valeurs)
+  private func countLeafTokens(_ nodes: [TokenNode]) -> Int {
+    var count = 0
+    for node in nodes {
+      if node.type == .token {
+        count += 1
+      }
+      if let children = node.children {
+        count += countLeafTokens(children)
+      }
+    }
+    return count
   }
   
   // Helper pour construire une liste plate de tous les nœuds
@@ -79,23 +85,34 @@ extension TokenFeature {
         }
       }
     }
-    
     addNodesRecursively(nodes)
     return result
   }
   
   // Fonction pour appliquer les filtres aux nœuds
   func applyFiltersToNodes(state: inout State) {
-    applyFiltersRecursively(nodes: &state.rootNodes, excludeStartingWithHash: state.excludeTokensStartingWithHash, excludeEndingWithHover: state.excludeTokensEndingWithHover)
+    applyFiltersRecursively(
+      nodes: &state.rootNodes,
+      excludeStartingWithHash: state.excludeTokensStartingWithHash,
+      excludeEndingWithHover: state.excludeTokensEndingWithHover
+    )
     // Reconstruire la liste plate après filtrage
     state.allNodes = buildFlatNodeList(state.rootNodes)
   }
   
-  private func applyFiltersRecursively(nodes: inout [TokenNode], excludeStartingWithHash: Bool, excludeEndingWithHover: Bool) {
+  private func applyFiltersRecursively(
+    nodes: inout [TokenNode],
+    excludeStartingWithHash: Bool,
+    excludeEndingWithHover: Bool
+  ) {
     for i in 0..<nodes.count {
       // Appliquer les filtres aux enfants d'abord
       if nodes[i].children != nil {
-        applyFiltersRecursively(nodes: &nodes[i].children!, excludeStartingWithHash: excludeStartingWithHash, excludeEndingWithHover: excludeEndingWithHover)
+        applyFiltersRecursively(
+          nodes: &nodes[i].children!,
+          excludeStartingWithHash: excludeStartingWithHash,
+          excludeEndingWithHover: excludeEndingWithHover
+        )
       }
       
       // Appliquer les filtres au nœud courant s'il s'agit d'un token

@@ -243,3 +243,82 @@ struct CompareView: View {
     }
   }
 }
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Empty State") {
+  CompareView(
+    store: Store(initialState: .initial) {
+      CompareFeature()
+    }
+  )
+  .frame(width: 900, height: 600)
+}
+
+#Preview("Files Loaded") {
+  CompareView(
+    store: Store(initialState: CompareFeature.State(
+      oldFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: TokenMetadata(
+          exportedAt: "2026-02-04 10:00:00",
+          timestamp: 1738663200,
+          version: "2.0.0",
+          generator: "Figma"
+        ),
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      newFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: PreviewData.metadata,
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      changes: nil,
+      loadingError: nil,
+      selectedChange: nil,
+      selectedTab: .overview
+    )) {
+      CompareFeature()
+    }
+  )
+  .frame(width: 900, height: 600)
+}
+
+#Preview("Comparison Results") {
+  CompareView(
+    store: Store(initialState: CompareFeature.State(
+      oldFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: TokenMetadata(
+          exportedAt: "2026-02-04 10:00:00",
+          timestamp: 1738663200,
+          version: "2.0.0",
+          generator: "Figma"
+        ),
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      newFile: CompareFeature.FileState(
+        tokens: PreviewData.rootNodes,
+        metadata: PreviewData.metadata,
+        url: nil,
+        isLoaded: true,
+        isLoading: false
+      ),
+      changes: PreviewData.comparisonChanges,
+      loadingError: nil,
+      selectedChange: nil,
+      selectedTab: .overview
+    )) {
+      CompareFeature()
+    }
+  )
+  .frame(width: 900, height: 600)
+}
+#endif
+

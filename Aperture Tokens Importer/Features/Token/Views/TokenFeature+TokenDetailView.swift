@@ -189,3 +189,22 @@ struct TokenDetailView: View {
     }
   }
 }
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Token Detail") {
+  TokenDetailView(node: PreviewData.singleToken)
+    .frame(width: 400, height: 300)
+}
+
+#Preview("Group Detail") {
+  TokenDetailView(node: PreviewData.brandGroup)
+    .frame(width: 400, height: 400)
+}
+
+#Preview("Disabled Token") {
+  TokenDetailView(node: PreviewData.disabledToken)
+    .frame(width: 400, height: 300)
+}
+#endif
+

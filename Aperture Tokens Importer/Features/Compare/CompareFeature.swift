@@ -49,7 +49,6 @@ public struct CompareFeature: Sendable {
         changes: nil,
         loadingError: nil,
         selectedChange: nil,
-        comparisonHistory: [],
         selectedTab: .overview
       )
     }
@@ -87,7 +86,6 @@ public struct CompareFeature: Sendable {
       case loadingFailed(String)
       case performComparison
       case historyLoaded([ComparisonHistoryEntry])
-      case historySaved
     }
 
     @CasePathable

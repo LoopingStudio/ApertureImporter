@@ -50,38 +50,29 @@ extension CompareFeature {
       guard let oldURL = state.oldFile.url, let newURL = state.newFile.url else {
         return .none
       }
-      let oldMetadata = state.oldFile.metadata
-      let newMetadata = state.newFile.metadata
-      let summary = ComparisonSummary(from: changes)
       
-      return .run { _ in
-        let oldBookmark = await historyClient.createBookmark(oldURL)
-        let newBookmark = await historyClient.createBookmark(newURL)
-        let entry = ComparisonHistoryEntry(
-          oldFile: FileSnapshot(
-            fileName: oldURL.lastPathComponent,
-            bookmarkData: oldBookmark,
-            metadata: oldMetadata
-          ),
-          newFile: FileSnapshot(
-            fileName: newURL.lastPathComponent,
-            bookmarkData: newBookmark,
-            metadata: newMetadata
-          ),
-          summary: summary
-        )
-        await historyClient.saveComparisonEntry(entry)
+      let entry = ComparisonHistoryEntry(
+        oldFile: FileSnapshot(
+          fileName: oldURL.lastPathComponent,
+          bookmarkData: oldURL.securityScopedBookmark(),
+          metadata: state.oldFile.metadata
+        ),
+        newFile: FileSnapshot(
+          fileName: newURL.lastPathComponent,
+          bookmarkData: newURL.securityScopedBookmark(),
+          metadata: state.newFile.metadata
+        ),
+        summary: ComparisonSummary(from: changes)
+      )
+      return .run { send in
+        await historyClient.addComparisonEntry(entry)
+        let history = await historyClient.getComparisonHistory()
+        await send(.internal(.historyLoaded(history)))
       }
       
     case .historyLoaded(let history):
       state.comparisonHistory = history
       return .none
-      
-    case .historySaved:
-      return .run { send in
-        let history = await historyClient.getComparisonHistory()
-        await send(.internal(.historyLoaded(history)))
-      }
     }
   }
 }

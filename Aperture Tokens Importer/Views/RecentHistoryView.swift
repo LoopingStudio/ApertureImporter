@@ -105,8 +105,8 @@ struct ImportHistoryRow: View {
             .font(.caption2)
             .foregroundStyle(.secondary)
           
-          if let metadata = entry.metadata {
-            Text("v\(metadata.version)")
+          if entry.tokenCount > 0 {
+            Text("\(entry.tokenCount) tokens")
               .font(.caption2)
               .foregroundStyle(.tertiary)
           }
@@ -341,3 +341,51 @@ struct ComparisonHistoryRow: View {
     }
   }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Import History") {
+  ImportHistoryView(
+    history: PreviewData.importHistoryEntries,
+    onEntryTapped: { _ in },
+    onRemove: { _ in },
+    onClear: { }
+  )
+  .frame(width: 400)
+  .padding()
+}
+
+#Preview("Import History - Empty") {
+  ImportHistoryView(
+    history: [],
+    onEntryTapped: { _ in },
+    onRemove: { _ in },
+    onClear: { }
+  )
+  .frame(width: 400)
+  .padding()
+}
+
+#Preview("Comparison History") {
+  ComparisonHistoryView(
+    history: PreviewData.comparisonHistoryEntries,
+    onEntryTapped: { _ in },
+    onRemove: { _ in },
+    onClear: { }
+  )
+  .frame(width: 500)
+  .padding()
+}
+
+#Preview("Comparison History - Empty") {
+  ComparisonHistoryView(
+    history: [],
+    onEntryTapped: { _ in },
+    onRemove: { _ in },
+    onClear: { }
+  )
+  .frame(width: 500)
+  .padding()
+}
+#endif

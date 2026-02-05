@@ -35,3 +35,55 @@ struct NodeTreeView: View {
     }
   }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Node Tree - Collapsed") {
+  List {
+    NodeTreeView(
+      node: PreviewData.colorsGroup,
+      selectedNodeId: nil,
+      expandedNodes: [],
+      onToggle: { _ in },
+      onSelect: { _ in },
+      onExpand: { _ in }
+    )
+  }
+  .listStyle(.sidebar)
+  .frame(width: 300, height: 400)
+}
+
+#Preview("Node Tree - Expanded") {
+  List {
+    NodeTreeView(
+      node: PreviewData.colorsGroup,
+      selectedNodeId: PreviewData.singleToken.id,
+      expandedNodes: [
+        PreviewData.colorsGroup.id,
+        PreviewData.brandGroup.id
+      ],
+      onToggle: { _ in },
+      onSelect: { _ in },
+      onExpand: { _ in }
+    )
+  }
+  .listStyle(.sidebar)
+  .frame(width: 300, height: 400)
+}
+
+#Preview("Single Token") {
+  List {
+    NodeTreeView(
+      node: PreviewData.singleToken,
+      selectedNodeId: PreviewData.singleToken.id,
+      expandedNodes: [],
+      onToggle: { _ in },
+      onSelect: { _ in },
+      onExpand: { _ in }
+    )
+  }
+  .listStyle(.sidebar)
+  .frame(width: 300, height: 100)
+}
+#endif

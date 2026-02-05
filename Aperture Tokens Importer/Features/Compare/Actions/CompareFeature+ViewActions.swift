@@ -68,7 +68,8 @@ extension CompareFeature {
       guard urls.old != nil || urls.new != nil else {
         return .run { send in
           await historyClient.removeComparisonEntry(entry.id)
-          await send(.internal(.historySaved))
+          let history = await historyClient.getComparisonHistory()
+          await send(.internal(.historyLoaded(history)))
         }
       }
       
@@ -86,7 +87,8 @@ extension CompareFeature {
     case .removeHistoryEntry(let id):
       return .run { send in
         await historyClient.removeComparisonEntry(id)
-        await send(.internal(.historySaved))
+        let history = await historyClient.getComparisonHistory()
+        await send(.internal(.historyLoaded(history)))
       }
       
     case .clearHistory:

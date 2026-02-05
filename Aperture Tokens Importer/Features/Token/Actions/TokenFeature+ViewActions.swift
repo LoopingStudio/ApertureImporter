@@ -19,7 +19,6 @@ extension TokenFeature {
       state = .initial
       state.importHistory = history
       return .none
-      
     case .onAppear:
       return .run { send in
         let history = await historyClient.getImportHistory()
@@ -30,7 +29,8 @@ extension TokenFeature {
       guard let url = entry.resolveURL() else {
         return .run { send in
           await historyClient.removeImportEntry(entry.id)
-          await send(.internal(.historySaved))
+          let history = await historyClient.getImportHistory()
+          await send(.internal(.historyLoaded(history)))
         }
       }
       _ = url.startAccessingSecurityScopedResource()
@@ -42,7 +42,8 @@ extension TokenFeature {
     case .removeHistoryEntry(let id):
       return .run { send in
         await historyClient.removeImportEntry(id)
-        await send(.internal(.historySaved))
+        let history = await historyClient.getImportHistory()
+        await send(.internal(.historyLoaded(history)))
       }
       
     case .clearHistory:
@@ -92,9 +93,7 @@ extension TokenFeature {
           }
         }
       case .rightArrow:
-        if let selectedNode = state.selectedNode,
-           let children = selectedNode.children,
-           !children.isEmpty {
+        if let selectedNode = state.selectedNode, let children = selectedNode.children, !children.isEmpty {
           state.expandedNodes.insert(selectedNode.id)
         }
       default: break

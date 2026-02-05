@@ -121,15 +121,6 @@ struct ApertureTokensView: View {
           )
       }
     }
-    .onKeyPress { keyPress in
-      switch keyPress.key {
-      case .upArrow, .downArrow, .rightArrow, .leftArrow:
-        send(.keyPressed(keyPress.key))
-        return .handled
-      default:
-        return .ignored
-      }
-    }
   }
 
   private var nodesView: some View {
@@ -153,6 +144,15 @@ struct ApertureTokensView: View {
     }
     .listStyle(.sidebar)
     .frame(minHeight: 300, maxHeight: .infinity)
+    .onKeyPress { keyPress in
+      switch keyPress.key {
+      case .upArrow, .downArrow, .rightArrow, .leftArrow:
+        send(.keyPressed(keyPress.key))
+        return .handled
+      default:
+        return .ignored
+      }
+    }
   }
 
   @ViewBuilder
@@ -166,3 +166,58 @@ struct ApertureTokensView: View {
     }
   }
 }
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Empty State") {
+  ApertureTokensView(
+    store: Store(initialState: .initial) {
+      TokenFeature()
+    }
+  )
+  .frame(width: 800, height: 600)
+}
+
+#Preview("With File Loaded") {
+  ApertureTokensView(
+    store: Store(initialState: TokenFeature.State(
+      rootNodes: PreviewData.rootNodes,
+      isFileLoaded: true,
+      isLoading: false,
+      loadingError: false,
+      errorMessage: nil,
+      metadata: PreviewData.metadata,
+      selectedNode: PreviewData.singleToken,
+      expandedNodes: [PreviewData.colorsGroup.id, PreviewData.brandGroup.id],
+      allNodes: [],
+      currentFileURL: nil,
+      splitViewRatio: 0.5
+    )) {
+      TokenFeature()
+    }
+  )
+  .frame(width: 900, height: 600)
+}
+
+#Preview("Loading State") {
+  ApertureTokensView(
+    store: Store(initialState: TokenFeature.State(
+      rootNodes: [],
+      isFileLoaded: false,
+      isLoading: true,
+      loadingError: false,
+      errorMessage: nil,
+      metadata: nil,
+      selectedNode: nil,
+      expandedNodes: [],
+      allNodes: [],
+      currentFileURL: nil,
+      splitViewRatio: 0.6
+    )) {
+      TokenFeature()
+    }
+  )
+  .frame(width: 800, height: 600)
+}
+#endif
+

@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Foundation
+import Sharing
 import SwiftUI
 
 @Reducer
@@ -24,9 +25,9 @@ public struct TokenFeature: Sendable {
     // History
     var importHistory: [ImportHistoryEntry] = []
     
-    // Export filters
-    var excludeTokensStartingWithHash: Bool = false
-    var excludeTokensEndingWithHover: Bool = false
+    // Export filters (persisted)
+    @Shared(.excludeTokensStartingWithHash) var excludeTokensStartingWithHash
+    @Shared(.excludeTokensEndingWithHover) var excludeTokensEndingWithHover
     
     // UI State
     var splitViewRatio: Double = 0.6
@@ -43,9 +44,6 @@ public struct TokenFeature: Sendable {
         expandedNodes: [],
         allNodes: [],
         currentFileURL: nil,
-        importHistory: [],
-        excludeTokensStartingWithHash: UserDefaults.standard.bool(forKey: "filter.excludeHash"),
-        excludeTokensEndingWithHover: UserDefaults.standard.bool(forKey: "filter.excludeHover"),
         splitViewRatio: 0.6
       )
     }
@@ -65,7 +63,6 @@ public struct TokenFeature: Sendable {
       case fileLoadingFailed(String)
       case applyFilters
       case historyLoaded([ImportHistoryEntry])
-      case historySaved
     }
 
     @CasePathable
