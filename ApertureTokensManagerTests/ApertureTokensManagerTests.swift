@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @Suite("Parsing Tests")
-struct ApertureTokensImporterTests {
+struct ApertureTokensManagerTests {
   @Test("Test New JSON Structure Parsing")
   func testNewJSONStructureParsing() {
     let sampleJSON = """

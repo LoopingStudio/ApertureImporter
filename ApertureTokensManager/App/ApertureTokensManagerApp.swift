@@ -2,7 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 
 @main
-struct ApertureTokensImporterApp: App {
+struct ApertureTokensManagerApp: App {
   var body: some Scene {
     WindowGroup {
       TabView {

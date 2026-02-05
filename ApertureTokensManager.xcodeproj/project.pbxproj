@@ -21,19 +21,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApertureTokensImporterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		18D87B1B2F28C2CF00D76485 /* Aperture Tokens Importer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Aperture Tokens Importer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		18610F372F337400005F2E4D /* ApertureTokensManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApertureTokensManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		18D87B1B2F28C2CF00D76485 /* ApertureTokensManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ApertureTokensManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		18610F382F337400005F2E4D /* ApertureTokensImporterTests */ = {
+		18610F382F337400005F2E4D /* ApertureTokensManagerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ApertureTokensImporterTests;
+			path = ApertureTokensManagerTests;
 			sourceTree = "<group>";
 		};
-		18D87B1D2F28C2CF00D76485 /* Aperture Tokens Importer */ = {
+		18D87B1D2F28C2CF00D76485 /* ApertureTokensManager */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Aperture Tokens Importer";
+			path = ApertureTokensManager;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -60,8 +60,8 @@
 		18D87B122F28C2CF00D76485 = {
 			isa = PBXGroup;
 			children = (
-				18D87B1D2F28C2CF00D76485 /* Aperture Tokens Importer */,
-				18610F382F337400005F2E4D /* ApertureTokensImporterTests */,
+				18D87B1D2F28C2CF00D76485 /* ApertureTokensManager */,
+				18610F382F337400005F2E4D /* ApertureTokensManagerTests */,
 				18D87B1C2F28C2CF00D76485 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -69,8 +69,8 @@
 		18D87B1C2F28C2CF00D76485 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18D87B1B2F28C2CF00D76485 /* Aperture Tokens Importer.app */,
-				18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */,
+				18D87B1B2F28C2CF00D76485 /* ApertureTokensManager.app */,
+				18610F372F337400005F2E4D /* ApertureTokensManagerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18610F362F337400005F2E4D /* ApertureTokensImporterTests */ = {
+		18610F362F337400005F2E4D /* ApertureTokensManagerTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensImporterTests" */;
+			buildConfigurationList = 18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensManagerTests" */;
 			buildPhases = (
 				18610F332F337400005F2E4D /* Sources */,
 				18610F342F337400005F2E4D /* Frameworks */,
@@ -92,18 +92,18 @@
 				18610F3C2F337400005F2E4D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				18610F382F337400005F2E4D /* ApertureTokensImporterTests */,
+				18610F382F337400005F2E4D /* ApertureTokensManagerTests */,
 			);
-			name = ApertureTokensImporterTests;
+			name = ApertureTokensManagerTests;
 			packageProductDependencies = (
 			);
 			productName = ApertureTokensImporterTests;
-			productReference = 18610F372F337400005F2E4D /* ApertureTokensImporterTests.xctest */;
+			productReference = 18610F372F337400005F2E4D /* ApertureTokensManagerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */ = {
+		18D87B1A2F28C2CF00D76485 /* ApertureTokensManager */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18D87B262F28C2D000D76485 /* Build configuration list for PBXNativeTarget "Aperture Tokens Importer" */;
+			buildConfigurationList = 18D87B262F28C2D000D76485 /* Build configuration list for PBXNativeTarget "ApertureTokensManager" */;
 			buildPhases = (
 				18D87B172F28C2CF00D76485 /* Sources */,
 				18D87B182F28C2CF00D76485 /* Frameworks */,
@@ -114,14 +114,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				18D87B1D2F28C2CF00D76485 /* Aperture Tokens Importer */,
+				18D87B1D2F28C2CF00D76485 /* ApertureTokensManager */,
 			);
-			name = "Aperture Tokens Importer";
+			name = ApertureTokensManager;
 			packageProductDependencies = (
 				18D87B2A2F28C30100D76485 /* ComposableArchitecture */,
 			);
 			productName = "Aperture Tokens Importer";
-			productReference = 18D87B1B2F28C2CF00D76485 /* Aperture Tokens Importer.app */;
+			productReference = 18D87B1B2F28C2CF00D76485 /* ApertureTokensManager.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -143,7 +143,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 18D87B162F28C2CF00D76485 /* Build configuration list for PBXProject "Aperture Tokens Importer" */;
+			buildConfigurationList = 18D87B162F28C2CF00D76485 /* Build configuration list for PBXProject "ApertureTokensManager" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -160,8 +160,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */,
-				18610F362F337400005F2E4D /* ApertureTokensImporterTests */,
+				18D87B1A2F28C2CF00D76485 /* ApertureTokensManager */,
+				18610F362F337400005F2E4D /* ApertureTokensManagerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -203,7 +203,7 @@
 /* Begin PBXTargetDependency section */
 		18610F3C2F337400005F2E4D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 18D87B1A2F28C2CF00D76485 /* Aperture Tokens Importer */;
+			target = 18D87B1A2F28C2CF00D76485 /* ApertureTokensManager */;
 			targetProxy = 18610F3B2F337400005F2E4D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -230,7 +230,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Aperture Tokens Importer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Aperture Tokens Importer";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ApertureTokensManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ApertureTokensManager";
 				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Debug;
@@ -256,7 +256,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Aperture Tokens Importer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Aperture Tokens Importer";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ApertureTokensManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ApertureTokensManager";
 				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Release;
@@ -488,7 +488,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensImporterTests" */ = {
+		18610F3D2F337400005F2E4D /* Build configuration list for PBXNativeTarget "ApertureTokensManagerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18610F3E2F337400005F2E4D /* Debug */,
@@ -497,7 +497,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18D87B162F28C2CF00D76485 /* Build configuration list for PBXProject "Aperture Tokens Importer" */ = {
+		18D87B162F28C2CF00D76485 /* Build configuration list for PBXProject "ApertureTokensManager" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18D87B242F28C2D000D76485 /* Debug */,
@@ -506,7 +506,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18D87B262F28C2D000D76485 /* Build configuration list for PBXNativeTarget "Aperture Tokens Importer" */ = {
+		18D87B262F28C2D000D76485 /* Build configuration list for PBXNativeTarget "ApertureTokensManager" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18D87B272F28C2D000D76485 /* Debug */,
