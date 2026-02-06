@@ -195,41 +195,38 @@ private struct SummaryCard: View {
         .shadow(color: isHovering ? color.opacity(0.2) : .clear, radius: 8)
     )
     .scaleEffect(isPressed ? 0.96 : (isHovering ? 1.03 : 1.0))
-    .opacity(isVisible ? 1 : 0)
-    .offset(y: isVisible ? 0 : 15)
     .animation(.easeOut(duration: 0.2), value: isHovering)
     .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
-    .onHover { hovering in
-      isHovering = hovering
-      if hovering {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
-          iconBounce = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-          withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            iconBounce = false
-          }
-        }
-        NSCursor.pointingHand.push()
-      } else {
-        NSCursor.pop()
-      }
+    .pointerOnHover { hovering in handleHover(hovering) }
+    .onTapGesture { handleTap() }
+    .staggeredAppear(index: index)
+  }
+  
+  private func handleHover(_ hovering: Bool) {
+    isHovering = hovering
+    guard hovering else { return }
+    bounceIcon()
+  }
+  
+  private func handleTap() {
+    withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
+      isPressed = true
     }
-    .onTapGesture {
-      withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
-        isPressed = true
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+        isPressed = false
       }
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-          isPressed = false
-        }
-        onTap()
-      }
+      onTap()
     }
-    .onAppear {
-      let delay = Double(index) * 0.08
-      withAnimation(.easeOut(duration: 0.35).delay(delay)) {
-        isVisible = true
+  }
+  
+  private func bounceIcon() {
+    withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+      iconBounce = true
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+      withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+        iconBounce = false
       }
     }
   }

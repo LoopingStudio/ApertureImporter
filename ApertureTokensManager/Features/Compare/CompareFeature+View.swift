@@ -68,6 +68,8 @@ struct CompareView: View {
           isLoaded: store.oldFile.isLoaded,
           isLoading: store.oldFile.isLoading,
           primaryColor: .blue,
+          isFromBase: store.oldFile.isFromBase,
+          fileName: store.oldFile.fileName,
           onDrop: { providers in
             guard let provider = providers.first else { return false }
             send(.fileDroppedWithProvider(.old, provider))
@@ -103,6 +105,7 @@ struct CompareView: View {
           isLoaded: store.newFile.isLoaded,
           isLoading: store.newFile.isLoading,
           primaryColor: .green,
+          fileName: store.newFile.fileName,
           onDrop: { providers in
             guard let provider = providers.first else { return false }
             send(.fileDroppedWithProvider(.new, provider))

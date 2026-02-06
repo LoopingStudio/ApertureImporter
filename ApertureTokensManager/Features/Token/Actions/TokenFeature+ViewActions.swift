@@ -51,6 +51,21 @@ extension TokenFeature {
         await historyClient.clearImportHistory()
         await send(.internal(.historyLoaded([])))
       }
+      
+    case .setAsBaseButtonTapped:
+      guard let metadata = state.metadata else { return .none }
+      let fileName = state.currentFileURL?.lastPathComponent ?? "Unknown"
+      let bookmarkData = state.currentFileURL?.securityScopedBookmark()
+      state.$designSystemBase.withLock {
+        $0 = DesignSystemBase(
+          fileName: fileName,
+          bookmarkData: bookmarkData,
+          metadata: metadata,
+          tokens: state.rootNodes
+        )
+      }
+      return .send(.delegate(.baseUpdated))
+      
     case .toggleNode(let id):
       updateNodeRecursively(nodes: &state.rootNodes, targetId: id)
       return .none

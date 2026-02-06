@@ -5,26 +5,13 @@ import ComposableArchitecture
 struct ApertureTokensManagerApp: App {
   var body: some Scene {
     WindowGroup {
-      TabView {
-        ApertureTokensView(
-          store: Store(initialState: .initial) {
-            TokenFeature()
-          }
-        )
-        .tabItem {
-          Label("Importer", systemImage: "square.and.arrow.down")
+      AppView(
+        store: Store(initialState: AppFeature.State()) {
+          AppFeature()
         }
-        
-        CompareView(
-          store: Store(initialState: .initial) {
-            CompareFeature()
-          }
-        )
-        .tabItem {
-          Label("Comparer", systemImage: "doc.text.magnifyingglass")
-        }
-      }
-      .frame(minWidth: 800, minHeight: 600)
+      )
+      .frame(minWidth: 900, minHeight: 650)
     }
+    .defaultSize(width: 1100, height: 750)
   }
 }

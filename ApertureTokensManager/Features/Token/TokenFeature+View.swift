@@ -30,6 +30,14 @@ struct ApertureTokensView: View {
           Button("Nouvelle Import") { send(.resetFile) }
             .controlSize(.small)
           
+          Button {
+            send(.setAsBaseButtonTapped)
+          } label: {
+            Label("Définir comme base", systemImage: "checkmark.seal")
+          }
+          .controlSize(.small)
+          .disabled(store.designSystemBase?.metadata == store.metadata)
+          
           Button("Exporter Design System") {
             send(.exportButtonTapped)
           }

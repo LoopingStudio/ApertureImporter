@@ -77,3 +77,15 @@ extension SharedKey where Self == FileStorageKey<TokenFilters>.Default {
     Self[.fileStorage(.tokenFilters), default: TokenFilters()]
   }
 }
+
+// MARK: - Design System Base
+
+extension URL {
+  static let designSystemBase = Self.documentsDirectory.appending(component: "design-system-base.json")
+}
+
+extension SharedKey where Self == FileStorageKey<DesignSystemBase?>.Default {
+  static var designSystemBase: Self {
+    Self[.fileStorage(.designSystemBase), default: nil]
+  }
+}

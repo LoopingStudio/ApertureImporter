@@ -18,6 +18,11 @@ public struct CompareFeature: Sendable {
     var url: URL?
     var isLoaded: Bool = false
     var isLoading: Bool = false
+    var isFromBase: Bool = false
+    
+    var fileName: String? {
+      url?.lastPathComponent
+    }
     
     static var empty: Self { .init() }
     
@@ -86,6 +91,7 @@ public struct CompareFeature: Sendable {
       case loadingFailed(String)
       case performComparison
       case historyLoaded([ComparisonHistoryEntry])
+      case setBaseAsOldFile(tokens: [TokenNode], metadata: TokenMetadata)
     }
 
     @CasePathable

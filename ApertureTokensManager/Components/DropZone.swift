@@ -9,6 +9,8 @@ struct DropZone: View {
   let hasError: Bool
   let errorMessage: String?
   let primaryColor: Color
+  let isFromBase: Bool
+  let fileName: String?
   let onDrop: ([NSItemProvider]) -> Bool
   let onSelectFile: () -> Void
   let onRemove: (() -> Void)?
@@ -29,6 +31,8 @@ struct DropZone: View {
     hasError: Bool = false,
     errorMessage: String? = nil,
     primaryColor: Color = .blue,
+    isFromBase: Bool = false,
+    fileName: String? = nil,
     onDrop: @escaping ([NSItemProvider]) -> Bool,
     onSelectFile: @escaping () -> Void,
     onRemove: (() -> Void)? = nil,
@@ -41,6 +45,8 @@ struct DropZone: View {
     self.hasError = hasError
     self.errorMessage = errorMessage
     self.primaryColor = primaryColor
+    self.isFromBase = isFromBase
+    self.fileName = fileName
     self.onDrop = onDrop
     self.onSelectFile = onSelectFile
     self.onRemove = onRemove
@@ -52,9 +58,15 @@ struct DropZone: View {
       VStack(spacing: 12) {
         iconView
         
-        Text(title)
-          .font(.headline)
-          .fontWeight(.semibold)
+        HStack(spacing: 6) {
+          Text(title)
+            .font(.headline)
+            .fontWeight(.semibold)
+          
+          if isFromBase {
+            BaseBadge()
+          }
+        }
         
         statusView
         
@@ -94,48 +106,13 @@ struct DropZone: View {
     .scaleEffect(isPressed ? 0.98 : (isDragHovering ? 1.02 : 1.0))
     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isDragHovering)
     .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
-    .onHover { hovering in
-      withAnimation(.easeInOut(duration: 0.2)) {
-        isHovering = hovering
-      }
-      // Subtle icon bounce on hover
-      if hovering && !isLoaded {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
-          iconScale = 1.1
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-          withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            iconScale = 1.0
-          }
-        }
-        NSCursor.pointingHand.push()
-      } else {
-        NSCursor.pop()
-      }
+    .onHover { hovering in handleHover(hovering) }
+    .onTapGesture { handleTap() }
+    .onDrop(of: [UTType.json], isTargeted: $isDragHovering.animated()) { providers in
+      onDrop(providers)
     }
-    .onTapGesture {
-      if !isLoaded {
-        // Press feedback
-        withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
-          isPressed = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-          withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-            isPressed = false
-          }
-          onSelectFile()
-        }
-      }
-    }
-    .onDrop(of: [UTType.json], isTargeted: Binding(
-      get: { isDragHovering },
-      set: { newValue in
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-          isDragHovering = newValue
-        }
-      }
-    )) { providers in
-      return onDrop(providers)
+    .onChange(of: isDragHovering) { _, _ in
+      // Animation is handled by the animated() binding
     }
     .onAppear {
       withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
@@ -205,9 +182,18 @@ struct DropZone: View {
           }
         }
       } else if isLoaded {
-        Text("Fichier chargé")
-          .font(.caption)
-          .foregroundStyle(.green)
+        VStack(spacing: 2) {
+          if let fileName = fileName {
+            Text(fileName)
+              .font(.caption)
+              .fontWeight(.medium)
+              .foregroundStyle(.primary)
+              .lineLimit(1)
+          }
+          Text("Fichier chargé")
+            .font(.caption2)
+            .foregroundStyle(.green)
+        }
       } else {
         Text(isDragHovering ? "Déposez le fichier ici" : subtitle)
           .font(.caption)
@@ -285,6 +271,67 @@ struct DropZone: View {
     } else {
       return primaryColor.opacity(0.6)
     }
+  }
+  
+  // MARK: - Private Methods
+  
+  private func handleHover(_ hovering: Bool) {
+    withAnimation(.easeInOut(duration: 0.2)) {
+      isHovering = hovering
+    }
+    
+    if hovering && !isLoaded {
+      bounceIcon()
+      NSCursor.pointingHand.push()
+    } else {
+      NSCursor.pop()
+    }
+  }
+  
+  private func bounceIcon() {
+    withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+      iconScale = 1.1
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+      withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+        iconScale = 1.0
+      }
+    }
+  }
+  
+  private func handleTap() {
+    guard !isLoaded else { return }
+    
+    withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
+      isPressed = true
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+        isPressed = false
+      }
+      onSelectFile()
+    }
+  }
+}
+
+// MARK: - Base Badge
+
+private struct BaseBadge: View {
+  var body: some View {
+    HStack(spacing: 3) {
+      Image(systemName: "checkmark.seal.fill")
+        .font(.caption2)
+      Text("Base")
+        .font(.caption2)
+        .fontWeight(.medium)
+    }
+    .foregroundStyle(.white)
+    .padding(.horizontal, 6)
+    .padding(.vertical, 2)
+    .background(
+      Capsule()
+        .fill(Color.orange.gradient)
+    )
   }
 }
 

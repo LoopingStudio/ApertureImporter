@@ -136,21 +136,25 @@ struct ImportHistoryRow: View {
     .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isPressed)
     .animation(.easeOut(duration: 0.15), value: isHovering)
     .contentShape(Rectangle())
-    .onTapGesture {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-        isPressed = true
-      }
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-          isPressed = false
-        }
-        onTap()
-      }
+    .onTapGesture { handleTap() }
+    .onHover { hovering in handleHover(hovering) }
+  }
+  
+  private func handleTap() {
+    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+      isPressed = true
     }
-    .onHover { hovering in
-      withAnimation(.easeOut(duration: 0.15)) {
-        isHovering = hovering
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+        isPressed = false
       }
+      onTap()
+    }
+  }
+  
+  private func handleHover(_ hovering: Bool) {
+    withAnimation(.easeOut(duration: 0.15)) {
+      isHovering = hovering
     }
   }
 }
@@ -286,21 +290,25 @@ struct ComparisonHistoryRow: View {
     .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isPressed)
     .animation(.easeOut(duration: 0.15), value: isHovering)
     .contentShape(Rectangle())
-    .onTapGesture {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-        isPressed = true
-      }
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-          isPressed = false
-        }
-        onTap()
-      }
+    .onTapGesture { handleTap() }
+    .onHover { hovering in handleHover(hovering) }
+  }
+  
+  private func handleTap() {
+    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+      isPressed = true
     }
-    .onHover { hovering in
-      withAnimation(.easeOut(duration: 0.15)) {
-        isHovering = hovering
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+        isPressed = false
       }
+      onTap()
+    }
+  }
+  
+  private func handleHover(_ hovering: Bool) {
+    withAnimation(.easeOut(duration: 0.15)) {
+      isHovering = hovering
     }
   }
   

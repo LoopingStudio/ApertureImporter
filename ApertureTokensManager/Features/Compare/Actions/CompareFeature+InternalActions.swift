@@ -73,6 +73,14 @@ extension CompareFeature {
     case .historyLoaded(let history):
       state.comparisonHistory = history
       return .none
+      
+    case .setBaseAsOldFile(let tokens, let metadata):
+      state.oldFile.tokens = tokens
+      state.oldFile.metadata = metadata
+      state.oldFile.isLoaded = true
+      state.oldFile.isFromBase = true
+      state.oldFile.url = nil
+      return .none
     }
   }
 }

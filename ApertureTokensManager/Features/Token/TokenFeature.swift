@@ -28,6 +28,9 @@ public struct TokenFeature: Sendable {
     // Export filters (persisted)
     @Shared(.tokenFilters) var filters
     
+    // Design System Base (persisted)
+    @Shared(.designSystemBase) var designSystemBase: DesignSystemBase?
+    
     // UI State
     var splitViewRatio: Double = 0.6
 
@@ -53,6 +56,12 @@ public struct TokenFeature: Sendable {
     case binding(BindingAction<State>)
     case `internal`(Internal)
     case view(View)
+    case delegate(Delegate)
+    
+    @CasePathable
+    public enum Delegate: Sendable, Equatable {
+      case baseUpdated
+    }
 
     @CasePathable
     public enum Internal: Sendable, Equatable {
@@ -81,6 +90,7 @@ public struct TokenFeature: Sendable {
       case historyEntryTapped(ImportHistoryEntry)
       case removeHistoryEntry(UUID)
       case clearHistory
+      case setAsBaseButtonTapped
     }
   }
 
@@ -91,6 +101,7 @@ public struct TokenFeature: Sendable {
       case .binding(let action): handleBindingAction(action, state: &state)
       case .internal(let action): handleInternalAction(action, state: &state)
       case .view(let action): handleViewAction(action, state: &state)
+      case .delegate: .none
       }
     }
   }
