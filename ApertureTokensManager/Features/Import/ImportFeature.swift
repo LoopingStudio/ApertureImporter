@@ -62,13 +62,14 @@ public struct ImportFeature: Sendable {
 
     @CasePathable
     public enum Internal: Sendable, Equatable {
-      case loadFile(URL)
-      case exportLoaded(TokenExport, URL)
-      case fileLoadingStarted
-      case fileLoadingFailed(String)
       case applyFilters
-      case historyLoaded([ImportHistoryEntry])
+      case exportLoaded(TokenExport, URL)
+      case fileLoadingFailed(String)
+      case fileLoadingStarted
       case filtersChanged(TokenFilters)
+      case historyLoaded([ImportHistoryEntry])
+      case loadFile(URL)
+      case loadFromHistoryEntry(ImportHistoryEntry)
       case observeFilters
     }
 

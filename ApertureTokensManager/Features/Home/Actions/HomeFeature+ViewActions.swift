@@ -25,6 +25,16 @@ extension HomeFeature {
       return .none
     case .goToImportTapped:
       return .send(.delegate(.goToImport))
+    case .historyFilterChanged(let filter):
+      state.historyFilter = filter
+      return .none
+    case .historyItemTapped(let item):
+      switch item {
+      case .imported(let entry):
+        return .send(.delegate(.openImportHistory(entry)))
+      case .comparison(let entry):
+        return .send(.delegate(.openComparisonHistory(entry)))
+      }
     case .openFileButtonTapped:
       guard let base = state.designSystemBase, let url = base.resolveURL() else { return .none }
       return .run { _ in

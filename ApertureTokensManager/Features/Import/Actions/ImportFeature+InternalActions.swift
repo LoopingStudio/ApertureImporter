@@ -63,6 +63,20 @@ extension ImportFeature {
     case .historyLoaded(let history):
       state.importHistory = history
       return .none
+    case .loadFromHistoryEntry(let entry):
+      // Réutilise la même logique que historyEntryTapped
+      guard let url = entry.resolveURL() else {
+        return .run { send in
+          await historyClient.removeImportEntry(entry.id)
+          let history = await historyClient.getImportHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      }
+      _ = url.startAccessingSecurityScopedResource()
+      return .concatenate(
+        .send(.internal(.fileLoadingStarted)),
+        .send(.internal(.loadFile(url)))
+      )
     case .applyFilters:
       applyFiltersToNodes(state: &state)
       return .none

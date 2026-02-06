@@ -1,5 +1,36 @@
 import Foundation
 
+// MARK: - Unified History Item
+
+public enum UnifiedHistoryItem: Identifiable, Equatable, Sendable {
+  case imported(ImportHistoryEntry)
+  case comparison(ComparisonHistoryEntry)
+  
+  public var id: UUID {
+    switch self {
+    case .imported(let entry): entry.id
+    case .comparison(let entry): entry.id
+    }
+  }
+  
+  public var date: Date {
+    switch self {
+    case .imported(let entry): entry.date
+    case .comparison(let entry): entry.date
+    }
+  }
+  
+  /// Fusionne et trie les historiques par date décroissante
+  public static func merge(
+    imports: [ImportHistoryEntry],
+    comparisons: [ComparisonHistoryEntry]
+  ) -> [UnifiedHistoryItem] {
+    let importItems = imports.map { UnifiedHistoryItem.imported($0) }
+    let comparisonItems = comparisons.map { UnifiedHistoryItem.comparison($0) }
+    return (importItems + comparisonItems).sorted { $0.date > $1.date }
+  }
+}
+
 // MARK: - Import History Entry
 
 public struct ImportHistoryEntry: Codable, Identifiable, Equatable, Sendable {

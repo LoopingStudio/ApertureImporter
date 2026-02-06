@@ -8,6 +8,7 @@ struct HomeView: View {
   @State private var showHeader = false
   @State private var showStats = false
   @State private var showActions = false
+  @State private var showHistory = false
   @State private var showEmptyContent = false
   @State private var iconPulse = false
   
@@ -143,6 +144,16 @@ struct HomeView: View {
           .opacity(showActions ? 1 : 0)
           .offset(y: showActions ? 0 : 20)
         
+        // Historique unifié
+        UnifiedHistoryView(
+          items: store.unifiedHistory,
+          filter: store.historyFilter,
+          onFilterChange: { send(.historyFilterChanged($0)) },
+          onItemTapped: { send(.historyItemTapped($0)) }
+        )
+        .opacity(showHistory ? 1 : 0)
+        .offset(y: showHistory ? 0 : 25)
+        
         Spacer(minLength: 20)
       }
       .padding(UIConstants.Spacing.large)
@@ -156,6 +167,9 @@ struct HomeView: View {
       }
       withAnimation(.easeOut(duration: 0.45).delay(0.2)) {
         showActions = true
+      }
+      withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+        showHistory = true
       }
     }
   }

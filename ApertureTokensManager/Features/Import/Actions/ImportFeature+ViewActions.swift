@@ -26,18 +26,7 @@ extension ImportFeature {
       }
       
     case .historyEntryTapped(let entry):
-      guard let url = entry.resolveURL() else {
-        return .run { send in
-          await historyClient.removeImportEntry(entry.id)
-          let history = await historyClient.getImportHistory()
-          await send(.internal(.historyLoaded(history)))
-        }
-      }
-      _ = url.startAccessingSecurityScopedResource()
-      return .run { send in
-        await send(.internal(.fileLoadingStarted))
-        await send(.internal(.loadFile(url)))
-      }
+      return .send(.internal(.loadFromHistoryEntry(entry)))
       
     case .removeHistoryEntry(let id):
       return .run { send in

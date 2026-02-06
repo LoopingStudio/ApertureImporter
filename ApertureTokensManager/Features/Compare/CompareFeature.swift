@@ -90,6 +90,7 @@ public struct CompareFeature: Sendable {
       case exportLoaded(FileType, TokenExport, URL)
       case historyLoaded([ComparisonHistoryEntry])
       case loadFile(FileType, URL)
+      case loadFromHistoryEntry(ComparisonHistoryEntry)
       case loadingFailed(String)
       case performComparison
       case setBaseAsOldFile(tokens: [TokenNode], metadata: TokenMetadata)

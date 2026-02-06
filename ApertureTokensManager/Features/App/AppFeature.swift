@@ -45,6 +45,12 @@ struct AppFeature {
       case .home(.delegate(.goToImport)):
         state.selectedTab = .importer
         return .none
+      case .home(.delegate(.openImportHistory(let entry))):
+        state.selectedTab = .importer
+        return .send(.importer(.internal(.loadFromHistoryEntry(entry))))
+      case .home(.delegate(.openComparisonHistory(let entry))):
+        state.selectedTab = .compare
+        return .send(.compare(.internal(.loadFromHistoryEntry(entry))))
       case .home:
         return .none
       // MARK: - Import Delegate Actions

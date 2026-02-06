@@ -86,6 +86,28 @@ extension CompareFeature {
       state.comparisonHistory = history
       return .none
       
+    case .loadFromHistoryEntry(let entry):
+      // Réutilise la même logique que historyEntryTapped
+      let urls = entry.resolveURLs()
+      guard urls.old != nil || urls.new != nil else {
+        return .run { send in
+          await historyClient.removeComparisonEntry(entry.id)
+          let history = await historyClient.getComparisonHistory()
+          await send(.internal(.historyLoaded(history)))
+        }
+      }
+      
+      var effects: [Effect<Action>] = []
+      if let oldURL = urls.old {
+        _ = oldURL.startAccessingSecurityScopedResource()
+        effects.append(.send(.internal(.loadFile(.old, oldURL))))
+      }
+      if let newURL = urls.new {
+        _ = newURL.startAccessingSecurityScopedResource()
+        effects.append(.send(.internal(.loadFile(.new, newURL))))
+      }
+      return .merge(effects)
+      
     case .setBaseAsOldFile(let tokens, let metadata):
       state.oldFile.tokens = tokens
       state.oldFile.metadata = metadata

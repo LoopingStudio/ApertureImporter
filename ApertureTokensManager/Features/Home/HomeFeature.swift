@@ -13,14 +13,35 @@ struct HomeFeature: Sendable {
   struct State: Equatable {
     @Shared(.designSystemBase) var designSystemBase: DesignSystemBase?
     @Shared(.tokenFilters) var filters: TokenFilters
+    @Shared(.importHistory) var importHistory: [ImportHistoryEntry]
+    @Shared(.comparisonHistory) var comparisonHistory: [ComparisonHistoryEntry]
     
     // UI State
     var isExportPopoverPresented: Bool = false
+    var historyFilter: HistoryFilter = .all
     
     // Token Browser Presentation
     @Presents var tokenBrowser: TokenBrowserFeature.State?
     
+    // Computed
+    var unifiedHistory: [UnifiedHistoryItem] {
+      let all = UnifiedHistoryItem.merge(imports: importHistory, comparisons: comparisonHistory)
+      switch historyFilter {
+      case .all: return all
+      case .imports: return all.filter { if case .imported = $0 { return true }; return false }
+      case .comparisons: return all.filter { if case .comparison = $0 { return true }; return false }
+      }
+    }
+    
     static var initial: State { .init() }
+  }
+  
+  // MARK: - History Filter
+  
+  enum HistoryFilter: String, CaseIterable, Equatable, Sendable {
+    case all = "Tout"
+    case imports = "Imports"
+    case comparisons = "Comparaisons"
   }
 
   // MARK: - Action
@@ -37,6 +58,8 @@ struct HomeFeature: Sendable {
     enum Delegate: Equatable, Sendable {
       case compareWithBase(tokens: [TokenNode], metadata: TokenMetadata)
       case goToImport
+      case openImportHistory(ImportHistoryEntry)
+      case openComparisonHistory(ComparisonHistoryEntry)
     }
 
     @CasePathable
@@ -50,9 +73,11 @@ struct HomeFeature: Sendable {
       case confirmExportButtonTapped
       case dismissExportPopover
       case exportButtonTapped
+      case goToImportTapped
+      case historyFilterChanged(HistoryFilter)
+      case historyItemTapped(UnifiedHistoryItem)
       case openFileButtonTapped
       case tokenCountTapped
-      case goToImportTapped
     }
   }
 
