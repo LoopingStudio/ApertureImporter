@@ -2,7 +2,7 @@ import ComposableArchitecture
 import Foundation
 import Sharing
 
-extension DashboardFeature {
+extension HomeFeature {
   func handleViewAction(_ action: Action.View, state: inout State) -> EffectOf<Self> {
     switch action {
     case .clearBaseButtonTapped:

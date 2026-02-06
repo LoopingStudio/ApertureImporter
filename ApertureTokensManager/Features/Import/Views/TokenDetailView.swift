@@ -6,76 +6,90 @@ struct TokenDetailView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          Text(node.name)
-            .font(.title2)
-            .fontWeight(.semibold)
-          
-          if !node.isEnabled {
-            Text("Exclu")
-              .font(.caption2)
-              .fontWeight(.medium)
-              .padding(.horizontal, 6)
-              .padding(.vertical, 2)
-              .background(Color.orange.opacity(0.2))
-              .foregroundStyle(.orange)
-              .clipShape(Capsule())
-          }
-        }
-        
-        HStack {
-          Image(systemName: node.type == .group ? "folder.fill" : "paintbrush.fill")
-            .foregroundStyle(node.type == .group ? .blue : .purple)
-          Text(node.type == .group ? "Dossier" : "Token")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-        
-        if let path = node.path {
-          Text("Chemin: \(path)")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
+        header
+        nodeType
+        nodePath
       }
-      
       if node.type == .group {
-        // Affichage des tokens enfants pour un groupe
-        let childTokens = getAllChildTokens(from: node)
-        if !childTokens.isEmpty {
-          ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-              Text("Tokens (\(childTokens.count))")
-                .font(.headline)
-                .fontWeight(.medium)
-              
-              LazyVStack(alignment: .leading, spacing: 8) {
-                ForEach(childTokens) { token in
-                  tokenRow(token: token)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                      RoundedRectangle(cornerRadius: 6)
-                        .fill(Color(nsColor: .controlBackgroundColor))
-                    )
-                }
-              }
-            }
-          }
-        } else {
-          Text("Aucun token dans ce groupe")
-            .foregroundStyle(.secondary)
-            .italic()
-        }
+        groupDetail
       } else if let modes = node.modes {
         // Affichage des thèmes pour un token individuel - layout vertical compact
         singleTokenThemes(modes: modes)
+        Spacer()
       }
-      Spacer()
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
   }
-  
+
+  private var header: some View {
+    HStack {
+      Text(node.name)
+        .font(.title2)
+        .fontWeight(.semibold)
+
+      if !node.isEnabled {
+        Text("Exclu")
+          .font(.caption2)
+          .fontWeight(.medium)
+          .padding(.horizontal, 6)
+          .padding(.vertical, 2)
+          .background(Color.orange.opacity(0.2))
+          .foregroundStyle(.orange)
+          .clipShape(Capsule())
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var nodePath: some View {
+    if let path = node.path {
+      Text("Chemin: \(path)")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+  }
+
+  private var nodeType: some View {
+    HStack {
+      Image(systemName: node.type == .group ? "folder.fill" : "paintbrush.fill")
+        .foregroundStyle(node.type == .group ? .blue : .purple)
+      Text(node.type == .group ? "Dossier" : "Token")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+  }
+
+  @ViewBuilder
+  private var groupDetail: some View {
+    // Affichage des tokens enfants pour un groupe
+    let childTokens = getAllChildTokens(from: node)
+    if !childTokens.isEmpty {
+      VStack(alignment: .leading, spacing: 12) {
+        Text("Tokens (\(childTokens.count))")
+          .font(.headline)
+          .fontWeight(.medium)
+        ScrollView {
+          LazyVStack(alignment: .leading, spacing: 8) {
+            ForEach(childTokens) { token in
+              tokenRow(token: token)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(
+                  RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(nsColor: .controlBackgroundColor))
+                )
+            }
+          }
+        }
+      }
+    } else {
+      Text("Aucun token dans ce groupe")
+        .foregroundStyle(.secondary)
+        .italic()
+    }
+  }
+
   // MARK: - Single Token Themes (redesigned)
   
   @ViewBuilder
@@ -146,7 +160,7 @@ struct TokenDetailView: View {
   
   // Vue pour afficher un token dans la liste
   private func tokenRow(token: TokenNode) -> some View {
-    HStack(spacing: 12) {
+    HStack(spacing: 4) {
       VStack(alignment: .leading, spacing: 4) {
         HStack(spacing: 6) {
           Text(token.name)

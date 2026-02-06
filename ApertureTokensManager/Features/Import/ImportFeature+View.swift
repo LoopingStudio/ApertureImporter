@@ -115,23 +115,12 @@ struct ImportView: View {
   }
 
   private var contentView: some View {
-    GeometryReader { geometry in
-      HSplitView {
-        VStack(spacing: 0) {
-          nodesView
-        }
-        .frame(
-          minWidth: 200,
-          idealWidth: geometry.size.width * store.splitViewRatio,
-          maxWidth: max(200, geometry.size.width * 0.8)
-        )
-
-        rightView
-          .frame(
-            minWidth: 150,
-            idealWidth: geometry.size.width * (1 - store.splitViewRatio)
-          )
-      }
+    HSplitView {
+      nodesView
+        .frame(minWidth: 250, maxHeight: .infinity)
+      
+      rightView
+        .frame(minWidth: 400, idealWidth: 600, maxHeight: .infinity)
     }
   }
 
@@ -151,7 +140,6 @@ struct ImportView: View {
       },
       onToggleEnabled: { send(.toggleNode($0)) }
     )
-    .frame(minHeight: 300, maxHeight: .infinity)
     .background(Color(nsColor: .controlBackgroundColor))
     .tokenTreeKeyboardNavigation(
       nodes: store.rootNodes,
@@ -167,10 +155,8 @@ struct ImportView: View {
   private var rightView: some View {
     if let selectedNode = store.selectedNode {
       TokenDetailView(node: selectedNode)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     } else {
       ContentUnavailableView("Sélectionnez un token", systemImage: "paintbrush")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
 }
@@ -198,8 +184,7 @@ struct ImportView: View {
       selectedNode: PreviewData.singleToken,
       expandedNodes: [PreviewData.colorsGroup.id, PreviewData.brandGroup.id],
       allNodes: [],
-      currentFileURL: nil,
-      splitViewRatio: 0.5
+      currentFileURL: nil
     )) {
       ImportFeature()
     }
@@ -219,8 +204,7 @@ struct ImportView: View {
       selectedNode: nil,
       expandedNodes: [],
       allNodes: [],
-      currentFileURL: nil,
-      splitViewRatio: 0.6
+      currentFileURL: nil
     )) {
       ImportFeature()
     }

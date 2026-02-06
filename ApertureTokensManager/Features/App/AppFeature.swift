@@ -5,7 +5,7 @@ import Foundation
 struct AppFeature {
   
   enum Tab: Equatable, Hashable {
-    case dashboard
+    case home
     case importer
     case compare
     case analysis
@@ -13,8 +13,8 @@ struct AppFeature {
   
   @ObservableState
   struct State: Equatable {
-    var selectedTab: Tab = .dashboard
-    var dashboard: DashboardFeature.State = .initial
+    var selectedTab: Tab = .home
+    var home: HomeFeature.State = .initial
     var importer: ImportFeature.State = .initial
     var compare: CompareFeature.State = .initial
     var analysis: AnalysisFeature.State = .initial
@@ -24,28 +24,28 @@ struct AppFeature {
     case tabSelected(Tab)
     case analysis(AnalysisFeature.Action)
     case compare(CompareFeature.Action)
-    case dashboard(DashboardFeature.Action)
+    case home(HomeFeature.Action)
     case importer(ImportFeature.Action)
   }
   
   var body: some ReducerOf<Self> {
     Scope(state: \.analysis, action: \.analysis) { AnalysisFeature() }
     Scope(state: \.compare, action: \.compare) { CompareFeature() }
-    Scope(state: \.dashboard, action: \.dashboard) { DashboardFeature() }
+    Scope(state: \.home, action: \.home) { HomeFeature() }
     Scope(state: \.importer, action: \.importer) { ImportFeature() }
     Reduce { state, action in
       switch action {
       case .tabSelected(let tab):
         state.selectedTab = tab
         return .none
-      // MARK: - Dashboard Delegate Actions
-      case .dashboard(.delegate(.compareWithBase(let tokens, let metadata))):
+      // MARK: - Home Delegate Actions
+      case .home(.delegate(.compareWithBase(let tokens, let metadata))):
         state.selectedTab = .compare
         return .send(.compare(.internal(.setBaseAsOldFile(tokens: tokens, metadata: metadata))))
-      case .dashboard(.delegate(.goToImport)):
+      case .home(.delegate(.goToImport)):
         state.selectedTab = .importer
         return .none
-      case .dashboard:
+      case .home:
         return .none
       // MARK: - Import Delegate Actions
       case .importer(.delegate(.baseUpdated)):

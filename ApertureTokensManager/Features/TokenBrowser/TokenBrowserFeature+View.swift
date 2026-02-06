@@ -58,10 +58,10 @@ struct TokenBrowserView: View {
   private var browserContent: some View {
     HSplitView {
       tokenListView
-        .frame(minWidth: 250, idealWidth: 300)
+        .frame(minWidth: 250, maxHeight: .infinity)
       
       tokenDetailView
-        .frame(minWidth: 300)
+        .frame(minWidth: 400, idealWidth: 600, maxHeight: .infinity)
     }
   }
   
@@ -89,14 +89,12 @@ struct TokenBrowserView: View {
   private var tokenDetailView: some View {
     if let selectedNode = store.selectedNode {
       TokenDetailView(node: selectedNode)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     } else {
       ContentUnavailableView(
         "Sélectionnez un token",
         systemImage: "paintbrush",
         description: Text("Choisissez un token dans la liste pour voir ses détails")
       )
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
 }

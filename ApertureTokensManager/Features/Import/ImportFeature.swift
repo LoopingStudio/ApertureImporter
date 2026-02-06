@@ -31,9 +31,6 @@ public struct ImportFeature: Sendable {
     // Design System Base (persisted)
     @Shared(.designSystemBase) var designSystemBase: DesignSystemBase?
     
-    // UI State
-    var splitViewRatio: Double = 0.6
-
     public static var initial: Self {
       .init(
         rootNodes: [],
@@ -45,8 +42,7 @@ public struct ImportFeature: Sendable {
         selectedNode: nil,
         expandedNodes: [],
         allNodes: [],
-        currentFileURL: nil,
-        splitViewRatio: 0.6
+        currentFileURL: nil
       )
     }
   }

@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct DashboardFeature: Sendable {
+struct HomeFeature: Sendable {
   @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
 

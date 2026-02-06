@@ -6,11 +6,11 @@ struct AppView: View {
   
   var body: some View {
     TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
-      DashboardView(store: store.scope(state: \.dashboard, action: \.dashboard))
+      HomeView(store: store.scope(state: \.home, action: \.home))
         .tabItem {
-          Label("Dashboard", systemImage: "square.stack.3d.up")
+          Label("Accueil", systemImage: "house.fill")
         }
-        .tag(AppFeature.Tab.dashboard)
+        .tag(AppFeature.Tab.home)
       AnalysisView(store: store.scope(state: \.analysis, action: \.analysis))
         .tabItem {
           Label("Analyser", systemImage: "chart.bar.doc.horizontal")

@@ -68,6 +68,10 @@ extension ImportFeature {
       
     case .toggleNode(let id):
       updateNodeRecursively(nodes: &state.rootNodes, targetId: id)
+      // Mettre à jour selectedNode si c'est le node toggleé ou un de ses descendants
+      if let selectedNode = state.selectedNode {
+        state.selectedNode = findNode(by: selectedNode.id, in: state.rootNodes)
+      }
       return .none
     case .selectNode(let node):
       state.selectedNode = node
@@ -194,5 +198,18 @@ extension ImportFeature {
         updateNodeRecursively(nodes: &nodes[i].children!, targetId: targetId)
       }
     }
+  }
+  
+  // Helper pour retrouver un node par son ID dans l'arbre
+  private func findNode(by id: TokenNode.ID, in nodes: [TokenNode]) -> TokenNode? {
+    for node in nodes {
+      if node.id == id {
+        return node
+      }
+      if let children = node.children, let found = findNode(by: id, in: children) {
+        return found
+      }
+    }
+    return nil
   }
 }

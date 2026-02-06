@@ -1,9 +1,9 @@
 import SwiftUI
 import ComposableArchitecture
 
-@ViewAction(for: DashboardFeature.self)
-struct DashboardView: View {
-  @Bindable var store: StoreOf<DashboardFeature>
+@ViewAction(for: HomeFeature.self)
+struct HomeView: View {
+  @Bindable var store: StoreOf<HomeFeature>
   
   @State private var showHeader = false
   @State private var showStats = false
@@ -33,7 +33,7 @@ struct DashboardView: View {
   @ViewBuilder
   private var header: some View {
     HStack {
-      Text("Dashboard")
+      Text("Accueil")
         .font(.title)
         .fontWeight(.bold)
       
@@ -84,7 +84,7 @@ struct DashboardView: View {
           .font(.title2)
           .fontWeight(.semibold)
         
-        Text("Importez un fichier de tokens et définissez-le comme base\npour accéder au dashboard.")
+        Text("Importez un fichier de tokens et définissez-le comme base\npour accéder à l'accueil.")
           .font(.body)
           .foregroundStyle(.secondary)
           .multilineTextAlignment(.center)
@@ -275,7 +275,7 @@ struct DashboardView: View {
 // MARK: - Export Action Card with Popover
 
 private struct ExportActionCard: View {
-  @Bindable var store: StoreOf<DashboardFeature>
+  @Bindable var store: StoreOf<HomeFeature>
   
   var body: some View {
     ActionCard(
@@ -364,8 +364,8 @@ private struct ExportActionCard: View {
 // MARK: - Previews
 
 #Preview("With Base") {
-  DashboardView(
-    store: Store(initialState: DashboardFeature.State(
+  HomeView(
+    store: Store(initialState: HomeFeature.State(
       designSystemBase: Shared(wrappedValue: DesignSystemBase(
         fileName: "aperture-tokens-v2.1.0.json",
         bookmarkData: nil,
@@ -378,16 +378,16 @@ private struct ExportActionCard: View {
         tokens: PreviewData.rootNodes
       ), .designSystemBase)
     )) {
-      DashboardFeature()
+      HomeFeature()
     }
   )
   .frame(width: 900, height: 600)
 }
 
 #Preview("Empty") {
-  DashboardView(
+  HomeView(
     store: Store(initialState: .initial) {
-      DashboardFeature()
+      HomeFeature()
     }
   )
   .frame(width: 700, height: 500)

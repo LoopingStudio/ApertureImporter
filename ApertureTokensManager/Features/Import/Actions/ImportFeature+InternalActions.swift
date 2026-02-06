@@ -108,6 +108,9 @@ extension ImportFeature {
         } else if !forceDisabled {
           nodes[i].isEnabled = true
         }
+      } else if nodes[i].type == .group && !forceDisabled {
+        // Les autres groupes sont activés par défaut (sauf si parent désactivé)
+        nodes[i].isEnabled = true
       }
       
       // Si forcé par un parent désactivé
@@ -115,18 +118,22 @@ extension ImportFeature {
         nodes[i].isEnabled = false
       }
       
-      // Appliquer les filtres au nœud courant s'il s'agit d'un token (et pas forcé désactivé)
-      if nodes[i].type == .token && !shouldDisableChildren {
-        var newIsEnabled = true
-        
-        if filters.excludeTokensStartingWithHash && nodes[i].name.hasPrefix("#") {
-          newIsEnabled = false
+      // Appliquer les filtres au nœud courant s'il s'agit d'un token
+      if nodes[i].type == .token {
+        if shouldDisableChildren {
+          nodes[i].isEnabled = false
+        } else {
+          var newIsEnabled = true
+          
+          if filters.excludeTokensStartingWithHash && nodes[i].name.hasPrefix("#") {
+            newIsEnabled = false
+          }
+          if filters.excludeTokensEndingWithHover && nodes[i].name.hasSuffix("_hover") {
+            newIsEnabled = false
+          }
+          
+          nodes[i].isEnabled = newIsEnabled
         }
-        if filters.excludeTokensEndingWithHover && nodes[i].name.hasSuffix("_hover") {
-          newIsEnabled = false
-        }
-        
-        nodes[i].isEnabled = newIsEnabled
       }
       
       // Appliquer les filtres aux enfants

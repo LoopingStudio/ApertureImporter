@@ -153,7 +153,7 @@ struct CompactColorPreview: View {
             }
           }
         }
-        .frame(minWidth: 64)
+        .frame(minWidth: 50)
       }
 
       // New Brand colors
@@ -174,7 +174,7 @@ struct CompactColorPreview: View {
             }
           }
         }
-        .frame(minWidth: 64)
+        .frame(minWidth: 50)
       }
     }
   }
