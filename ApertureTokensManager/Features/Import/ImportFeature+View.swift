@@ -2,9 +2,9 @@ import SwiftUI
 import ComposableArchitecture
 import UniformTypeIdentifiers
 
-@ViewAction(for: TokenFeature.self)
-struct ApertureTokensView: View {
-  @Bindable var store: StoreOf<TokenFeature>
+@ViewAction(for: ImportFeature.self)
+struct ImportView: View {
+  @Bindable var store: StoreOf<ImportFeature>
 
   var body: some View {
     VStack(spacing: 0) {
@@ -136,35 +136,31 @@ struct ApertureTokensView: View {
   }
 
   private var nodesView: some View {
-    List {
-      ForEach(store.rootNodes, id: \.id) { node in
-        NodeTreeView(
-          node: node,
-          selectedNodeId: store.selectedNode?.id,
-          expandedNodes: store.expandedNodes,
-          onToggle: { send(.toggleNode($0)) },
-          onSelect: { send(.selectNode($0)) },
-          onExpand: {
-            if store.expandedNodes.contains($0) {
-              send(.collapseNode($0))
-            } else {
-              send(.expandNode($0))
-            }
-          }
-        )
-      }
-    }
-    .listStyle(.sidebar)
+    TokenTree(
+      nodes: store.rootNodes,
+      selectedNodeId: store.selectedNode?.id,
+      expandedNodes: store.expandedNodes,
+      isEditable: true,
+      onSelect: { send(.selectNode($0)) },
+      onExpand: { nodeId in
+        if store.expandedNodes.contains(nodeId) {
+          send(.collapseNode(nodeId))
+        } else {
+          send(.expandNode(nodeId))
+        }
+      },
+      onToggleEnabled: { send(.toggleNode($0)) }
+    )
     .frame(minHeight: 300, maxHeight: .infinity)
-    .onKeyPress { keyPress in
-      switch keyPress.key {
-      case .upArrow, .downArrow, .rightArrow, .leftArrow:
-        send(.keyPressed(keyPress.key))
-        return .handled
-      default:
-        return .ignored
-      }
-    }
+    .background(Color(nsColor: .controlBackgroundColor))
+    .tokenTreeKeyboardNavigation(
+      nodes: store.rootNodes,
+      expandedNodes: store.expandedNodes,
+      selectedNodeId: store.selectedNode?.id,
+      onSelect: { send(.selectNode($0)) },
+      onExpand: { send(.expandNode($0)) },
+      onCollapse: { send(.collapseNode($0)) }
+    )
   }
 
   @ViewBuilder
@@ -182,17 +178,17 @@ struct ApertureTokensView: View {
 
 #if DEBUG
 #Preview("Empty State") {
-  ApertureTokensView(
+  ImportView(
     store: Store(initialState: .initial) {
-      TokenFeature()
+      ImportFeature()
     }
   )
   .frame(width: 800, height: 600)
 }
 
 #Preview("With File Loaded") {
-  ApertureTokensView(
-    store: Store(initialState: TokenFeature.State(
+  ImportView(
+    store: Store(initialState: ImportFeature.State(
       rootNodes: PreviewData.rootNodes,
       isFileLoaded: true,
       isLoading: false,
@@ -205,15 +201,15 @@ struct ApertureTokensView: View {
       currentFileURL: nil,
       splitViewRatio: 0.5
     )) {
-      TokenFeature()
+      ImportFeature()
     }
   )
   .frame(width: 900, height: 600)
 }
 
 #Preview("Loading State") {
-  ApertureTokensView(
-    store: Store(initialState: TokenFeature.State(
+  ImportView(
+    store: Store(initialState: ImportFeature.State(
       rootNodes: [],
       isFileLoaded: false,
       isLoading: true,
@@ -226,7 +222,7 @@ struct ApertureTokensView: View {
       currentFileURL: nil,
       splitViewRatio: 0.6
     )) {
-      TokenFeature()
+      ImportFeature()
     }
   )
   .frame(width: 800, height: 600)

@@ -66,18 +66,23 @@ struct TokenBrowserView: View {
   }
   
   private var tokenListView: some View {
-    List {
-      ForEach(store.tokens, id: \.id) { node in
-        ReadOnlyNodeTreeView(
-          node: node,
-          selectedNodeId: store.selectedNode?.id,
-          expandedNodes: store.expandedNodes,
-          onSelect: { send(.selectNode($0)) },
-          onExpand: { send(.toggleNode($0)) }
-        )
-      }
-    }
-    .listStyle(.sidebar)
+    TokenTree(
+      nodes: store.tokens,
+      selectedNodeId: store.selectedNode?.id,
+      expandedNodes: store.expandedNodes,
+      isEditable: false,
+      onSelect: { send(.selectNode($0)) },
+      onExpand: { send(.toggleNode($0)) }
+    )
+    .background(Color(nsColor: .controlBackgroundColor))
+    .tokenTreeKeyboardNavigation(
+      nodes: store.tokens,
+      expandedNodes: store.expandedNodes,
+      selectedNodeId: store.selectedNode?.id,
+      onSelect: { send(.selectNode($0)) },
+      onExpand: { send(.toggleNode($0)) },
+      onCollapse: { send(.toggleNode($0)) }
+    )
   }
   
   @ViewBuilder

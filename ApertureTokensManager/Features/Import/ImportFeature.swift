@@ -4,7 +4,7 @@ import Sharing
 import SwiftUI
 
 @Reducer
-public struct TokenFeature: Sendable {
+public struct ImportFeature: Sendable {
   @Dependency(\.exportClient) var exportClient
   @Dependency(\.fileClient) var fileClient
   @Dependency(\.historyClient) var historyClient

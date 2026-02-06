@@ -21,7 +21,7 @@ struct AppView: View {
           Label("Comparer", systemImage: "doc.text.magnifyingglass")
         }
         .tag(AppFeature.Tab.compare)
-      ApertureTokensView(store: store.scope(state: \.token, action: \.token))
+      ImportView(store: store.scope(state: \.importer, action: \.importer))
         .tabItem {
           Label("Importer", systemImage: "square.and.arrow.down")
         }

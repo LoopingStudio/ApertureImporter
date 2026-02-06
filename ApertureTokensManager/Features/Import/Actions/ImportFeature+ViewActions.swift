@@ -2,7 +2,7 @@ import ComposableArchitecture
 import Foundation
 import SwiftUI
 
-extension TokenFeature {
+extension ImportFeature {
   func handleViewAction(_ action: Action.View, state: inout State) -> EffectOf<Self> {
     switch action {
     case .fileDroppedWithProvider(let provider):

@@ -15,7 +15,7 @@ struct AppFeature {
   struct State: Equatable {
     var selectedTab: Tab = .dashboard
     var dashboard: DashboardFeature.State = .initial
-    var token: TokenFeature.State = .initial
+    var importer: ImportFeature.State = .initial
     var compare: CompareFeature.State = .initial
     var analysis: AnalysisFeature.State = .initial
   }
@@ -25,14 +25,14 @@ struct AppFeature {
     case analysis(AnalysisFeature.Action)
     case compare(CompareFeature.Action)
     case dashboard(DashboardFeature.Action)
-    case token(TokenFeature.Action)
+    case importer(ImportFeature.Action)
   }
   
   var body: some ReducerOf<Self> {
     Scope(state: \.analysis, action: \.analysis) { AnalysisFeature() }
     Scope(state: \.compare, action: \.compare) { CompareFeature() }
     Scope(state: \.dashboard, action: \.dashboard) { DashboardFeature() }
-    Scope(state: \.token, action: \.token) { TokenFeature() }
+    Scope(state: \.importer, action: \.importer) { ImportFeature() }
     Reduce { state, action in
       switch action {
       case .tabSelected(let tab):
@@ -47,11 +47,11 @@ struct AppFeature {
         return .none
       case .dashboard:
         return .none
-      // MARK: - Token Delegate Actions
-      case .token(.delegate(.baseUpdated)):
+      // MARK: - Import Delegate Actions
+      case .importer(.delegate(.baseUpdated)):
         // Could trigger dashboard refresh if needed
         return .none
-      case .token:
+      case .importer:
         return .none
       // MARK: - Analysis Actions
       case .analysis:

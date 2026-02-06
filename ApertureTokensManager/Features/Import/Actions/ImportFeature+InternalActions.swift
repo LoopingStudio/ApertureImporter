@@ -2,7 +2,7 @@ import Combine
 import ComposableArchitecture
 import Foundation
 
-extension TokenFeature {
+extension ImportFeature {
   func handleInternalAction(_ action: Action.Internal, state: inout State) -> EffectOf<Self> {
     switch action {
     case .fileLoadingStarted:
