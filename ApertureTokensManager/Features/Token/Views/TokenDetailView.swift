@@ -67,27 +67,66 @@ struct TokenDetailView: View {
             .italic()
         }
       } else if let modes = node.modes {
-        // Affichage des thèmes pour un token individuel
-        VStack(alignment: .leading, spacing: 12) {
-          Text("Themes")
-            .font(.headline)
-            .fontWeight(.medium)
-          
-          HStack(alignment: .top, spacing: 12) {
-            if let legacy = modes.legacy {
-              brandTheme(brandName: Brand.legacy, theme: legacy)
-            }
-            if let newBrand = modes.newBrand {
-              brandTheme(brandName: Brand.newBrand, theme: newBrand)
-            }
-          }
-        }
+        // Affichage des thèmes pour un token individuel - layout vertical compact
+        singleTokenThemes(modes: modes)
       }
       Spacer()
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
   }
+  
+  // MARK: - Single Token Themes (redesigned)
+  
+  @ViewBuilder
+  private func singleTokenThemes(modes: TokenThemes) -> some View {
+    VStack(alignment: .leading, spacing: 16) {
+      // Legacy Brand
+      if let legacy = modes.legacy {
+        brandSection(name: Brand.legacy, theme: legacy, accentColor: .blue)
+      }
+      
+      // New Brand
+      if let newBrand = modes.newBrand {
+        brandSection(name: Brand.newBrand, theme: newBrand, accentColor: .purple)
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private func brandSection(name: String, theme: TokenThemes.Appearance, accentColor: Color) -> some View {
+    VStack(alignment: .leading, spacing: 12) {
+      // Brand header
+      HStack(spacing: 6) {
+        Circle()
+          .fill(accentColor)
+          .frame(width: 8, height: 8)
+        Text(name)
+          .font(.subheadline)
+          .fontWeight(.semibold)
+      }
+      
+      // Theme colors in horizontal layout
+      HStack(spacing: 16) {
+        if let lightValue = theme.light {
+          themeColorCard(value: lightValue, label: "Light", icon: "sun.max.fill")
+        }
+        if let darkValue = theme.dark {
+          themeColorCard(value: darkValue, label: "Dark", icon: "moon.fill")
+        }
+      }
+    }
+    .padding()
+    .background(Color(.controlBackgroundColor).opacity(0.5))
+    .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
+  
+  @ViewBuilder
+  private func themeColorCard(value: TokenValue, label: String, icon: String) -> some View {
+    ThemeColorCardView(value: value, label: label, icon: icon)
+  }
+  
+  // MARK: - Group Content
   
   // Fonction pour collecter récursivement tous les tokens enfants
   private func getAllChildTokens(from node: TokenNode) -> [TokenNode] {
@@ -143,56 +182,105 @@ struct TokenDetailView: View {
     .opacity(token.isEnabled ? 1.0 : 0.5)
   }
 
-  private func brandTheme(brandName: String, theme: TokenThemes.Appearance) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Text(brandName)
-        .font(.caption)
-        .fontWeight(.medium)
-        .foregroundStyle(.primary)
+}
 
-      HStack(alignment: .top, spacing: 4) {
-        if let lightValue = theme.light {
-          themeSquare(value: lightValue, label: ThemeType.light.capitalized)
-        }
-        if let darkValue = theme.dark {
-          themeSquare(value: darkValue, label: ThemeType.dark.capitalized)
-        }
-      }
-    }
-  }
+// MARK: - Theme Color Card with Popover
 
-  private func themeSquare(value: TokenValue, label: String) -> some View {
-    VStack(spacing: UIConstants.Spacing.small) {
-      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
+private struct ThemeColorCardView: View {
+  let value: TokenValue
+  let label: String
+  let icon: String
+  
+  @State private var showPopover = false
+  @State private var isHovering = false
+  
+  var body: some View {
+    HStack(spacing: 12) {
+      // Color preview - clickable
+      RoundedRectangle(cornerRadius: 8)
         .fill(Color(hex: value.hex))
-        .frame(width: UIConstants.Size.colorSquare, height: UIConstants.Size.colorSquare)
+        .frame(width: 48, height: 48)
         .overlay(
-          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.large)
-            .stroke(Color.secondary.opacity(0.3), lineWidth: 1.0)
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(Color.primary.opacity(isHovering ? 0.3 : 0.15), lineWidth: isHovering ? 2 : 1)
         )
-        .shadow(radius: 1)
-
-      VStack(spacing: 2) {
-        Text(label)
-          .font(.caption2)
-          .fontWeight(.medium)
-          .foregroundStyle(.primary)
+        .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
+        .scaleEffect(isHovering ? 1.05 : 1.0)
+        .animation(.easeOut(duration: 0.15), value: isHovering)
+        .onHover { isHovering = $0 }
+        .onTapGesture { showPopover.toggle() }
+        .popover(isPresented: $showPopover, arrowEdge: .top) {
+          colorPopover
+        }
+      
+      // Info
+      VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: 4) {
+          Image(systemName: icon)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+          Text(label)
+            .font(.caption)
+            .fontWeight(.medium)
+        }
         
         Text(value.hex)
-          .font(.caption2)
-          .fontWeight(.semibold)
-          .foregroundStyle(.secondary)
-        
-        Text(value.primitiveName)
-          .font(.caption2)
-          .foregroundStyle(.tertiary)
-          .lineLimit(2)
-          .multilineTextAlignment(.center)
+          .font(.system(.caption, design: .monospaced))
+          .fontWeight(.medium)
+          .foregroundStyle(.primary)
       }
-      .frame(width: UIConstants.Size.colorLabelWidth)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+  
+  private var colorPopover: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text("Détails de la couleur")
+        .font(.headline)
+        .fontWeight(.semibold)
+      
+      HStack(spacing: 12) {
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(hex: value.hex))
+          .frame(width: 60, height: 60)
+          .overlay(
+            RoundedRectangle(cornerRadius: 8)
+              .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+          )
+        
+        VStack(alignment: .leading, spacing: 8) {
+          VStack(alignment: .leading, spacing: 2) {
+            Text("Hex")
+              .font(.caption)
+              .fontWeight(.medium)
+              .foregroundStyle(.secondary)
+            
+            Text(value.hex)
+              .font(.system(.body, design: .monospaced))
+              .fontWeight(.medium)
+              .textSelection(.enabled)
+          }
+          
+          VStack(alignment: .leading, spacing: 2) {
+            Text("Primitive")
+              .font(.caption)
+              .fontWeight(.medium)
+              .foregroundStyle(.secondary)
+            
+            Text(value.primitiveName)
+              .font(.callout)
+              .textSelection(.enabled)
+          }
+        }
+        
+        Spacer()
+      }
+    }
+    .padding()
+    .frame(width: 280)
   }
 }
+
 // MARK: - Previews
 
 #if DEBUG

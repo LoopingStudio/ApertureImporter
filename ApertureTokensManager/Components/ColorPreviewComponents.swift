@@ -46,11 +46,16 @@ struct ColorSquareWithPopover: View {
   let value: TokenValue
   let label: String
   @State private var showPopover = false
+  @State private var isHovering = false
 
   var body: some View {
     RoundedRectangle(cornerRadius: 4)
       .fill(Color(hex: value.hex))
       .frame(width: 24, height: 24)
+      .overlay(
+        RoundedRectangle(cornerRadius: 4)
+          .stroke(Color.primary.opacity(isHovering ? 0.4 : 0), lineWidth: 1.5)
+      )
       .overlay(
         Text(label)
           .font(.caption2)
@@ -58,6 +63,9 @@ struct ColorSquareWithPopover: View {
           .foregroundStyle(.white)
           .shadow(color: .black.opacity(0.8), radius: 1, x: 0, y: 0)
       )
+      .scaleEffect(isHovering ? 1.15 : 1.0)
+      .animation(.easeOut(duration: 0.15), value: isHovering)
+      .onHover { isHovering = $0 }
       .onTapGesture {
         showPopover.toggle()
       }

@@ -9,27 +9,25 @@ struct UsageOverviewView: View {
       VStack(spacing: 24) {
         // Stats Cards
         HStack(spacing: 16) {
-          statCard(
+          StatCard(
             title: "Tokens Utilisés",
             value: "\(report.statistics.usedCount)",
             subtitle: String(format: "%.0f%% du total", report.statistics.usagePercentage),
             color: .green,
-            icon: "checkmark.circle.fill"
-          ) {
-            onTabTapped(.used)
-          }
+            icon: "checkmark.circle.fill",
+            action: { onTabTapped(.used) }
+          )
           
-          statCard(
+          StatCard(
             title: "Tokens Orphelins",
             value: "\(report.statistics.orphanedCount)",
             subtitle: String(format: "%.0f%% du total", report.statistics.orphanedPercentage),
             color: .orange,
-            icon: "exclamationmark.triangle.fill"
-          ) {
-            onTabTapped(.orphaned)
-          }
+            icon: "exclamationmark.triangle.fill",
+            action: { onTabTapped(.orphaned) }
+          )
           
-          statCard(
+          StatCard(
             title: "Occurrences",
             value: "\(report.statistics.totalUsages)",
             subtitle: "dans \(report.statistics.filesScanned) fichiers",
@@ -157,45 +155,8 @@ struct UsageOverviewView: View {
             .foregroundStyle(.secondary)
         }
       }
+      .padding(4) // Espace pour le scale au hover des StatCards
     }
-  }
-  
-  @ViewBuilder
-  private func statCard(
-    title: String,
-    value: String,
-    subtitle: String,
-    color: Color,
-    icon: String,
-    action: (() -> Void)? = nil
-  ) -> some View {
-    Button {
-      action?()
-    } label: {
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          Image(systemName: icon)
-            .foregroundStyle(color)
-          Spacer()
-        }
-        
-        Text(value)
-          .font(.system(size: 32, weight: .bold, design: .rounded))
-        
-        Text(title)
-          .font(.headline)
-        
-        Text(subtitle)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-      .padding()
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(color.opacity(0.1))
-      .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-    .buttonStyle(.plain)
-    .disabled(action == nil)
   }
 }
 

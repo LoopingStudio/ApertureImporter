@@ -13,7 +13,7 @@ struct DashboardView: View {
       if let base = store.designSystemBase {
         DesignSystemBaseView(base: base, store: store)
       } else {
-        EmptyBaseView()
+        EmptyBaseView { send(.goToImportTapped) }
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -62,7 +62,8 @@ private extension DashboardView {
 private struct EmptyBaseView: View {
   @State private var showContent = false
   @State private var iconPulse = false
-  
+  let onImportTapped: () -> Void
+
   var body: some View {
     VStack(spacing: UIConstants.Spacing.large) {
       ZStack {
@@ -90,22 +91,27 @@ private struct EmptyBaseView: View {
       }
       .opacity(showContent ? 1 : 0)
       .offset(y: showContent ? 0 : 10)
-      
-      HStack(spacing: 6) {
-        Image(systemName: "arrow.right.circle.fill")
-          .foregroundStyle(.purple)
-        Text("Utilisez l'onglet Importer pour charger un Design System")
+
+      Button {
+        onImportTapped()
+      } label: {
+        HStack(spacing: 6) {
+          Image(systemName: "arrow.right.circle.fill")
+            .foregroundStyle(.purple)
+          Text("Utilisez l'onglet Importer pour charger un Design System")
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+          Capsule()
+            .fill(Color.purple.opacity(0.1))
+        )
+        .opacity(showContent ? 1 : 0)
+        .offset(y: showContent ? 0 : 15)
       }
-      .font(.callout)
-      .foregroundStyle(.secondary)
-      .padding(.horizontal, 16)
-      .padding(.vertical, 10)
-      .background(
-        Capsule()
-          .fill(Color.purple.opacity(0.1))
-      )
-      .opacity(showContent ? 1 : 0)
-      .offset(y: showContent ? 0 : 15)
+      .buttonStyle(.plain)
     }
     .padding(UIConstants.Spacing.extraLarge)
     .frame(maxHeight: .infinity)
@@ -220,37 +226,34 @@ private struct DesignSystemBaseView: View {
   // MARK: - Stats Section
   
   private var statsSection: some View {
-    LazyVGrid(columns: [
-      GridItem(.flexible()),
-      GridItem(.flexible()),
-      GridItem(.flexible())
-    ], spacing: UIConstants.Spacing.medium) {
-      DashboardStatCardButton(
+    HStack(spacing: UIConstants.Spacing.medium) {
+      StatCard(
         title: "Tokens",
         value: "\(base.tokenCount)",
-        icon: "paintpalette.fill",
+        subtitle: "dans le design system",
         color: .blue,
-        index: 0,
-        hint: "Voir les tokens"
-      ) {
-        store.send(.view(.tokenCountTapped))
-      }
+        icon: "paintpalette.fill",
+        action: { store.send(.view(.tokenCountTapped)) }
+      )
+      .staggeredAppear(index: 0)
       
-      DashboardStatCard(
+      StatCard(
         title: "Défini le",
         value: base.setAt.formatted(date: .abbreviated, time: .omitted),
-        icon: "calendar",
+        subtitle: "comme base de référence",
         color: .orange,
-        index: 1
+        icon: "calendar"
       )
+      .staggeredAppear(index: 1)
       
-      DashboardStatCard(
+      StatCard(
         title: "Exporté",
         value: base.metadata.exportedAt.toShortDate(),
-        icon: "arrow.up.doc.fill",
+        subtitle: "par \(base.metadata.generator)",
         color: .purple,
-        index: 2
+        icon: "arrow.up.doc.fill"
       )
+      .staggeredAppear(index: 2)
     }
   }
   
@@ -450,149 +453,6 @@ private struct ExportPopoverContent: View {
     }
     .padding()
     .frame(width: 320)
-  }
-}
-
-// MARK: - Stat Card
-
-private struct DashboardStatCard: View {
-  let title: String
-  let value: String
-  let icon: String
-  let color: Color
-  let index: Int
-  
-  @State private var isHovering = false
-  
-  var body: some View {
-    VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
-      HStack {
-        Image(systemName: icon)
-          .font(.title3)
-          .foregroundStyle(color)
-        Spacer()
-      }
-      
-      Spacer()
-      
-      Text(value)
-        .font(.title2)
-        .fontWeight(.bold)
-        .foregroundStyle(color)
-        .contentTransition(.numericText())
-      
-      Text(title)
-        .font(.caption)
-        .foregroundStyle(.secondary)
-    }
-    .frame(maxWidth: .infinity, minHeight: 100, alignment: .leading)
-    .padding(UIConstants.Spacing.medium)
-    .background(
-      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
-        .fill(color.opacity(isHovering ? 0.12 : 0.08))
-        .overlay(
-          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
-            .stroke(color.opacity(isHovering ? 0.3 : 0.15), lineWidth: 1)
-        )
-    )
-    .scaleEffect(isHovering ? 1.02 : 1.0)
-    .shadow(color: isHovering ? color.opacity(0.15) : .clear, radius: 8)
-    .animation(.easeOut(duration: 0.2), value: isHovering)
-    .onHover { isHovering = $0 }
-    .staggeredAppear(index: index)
-  }
-}
-
-// MARK: - Stat Card Button (Clickable)
-
-private struct DashboardStatCardButton: View {
-  let title: String
-  let value: String
-  let icon: String
-  let color: Color
-  let index: Int
-  let hint: String
-  let action: () -> Void
-  
-  @State private var isHovering = false
-  @State private var isPressed = false
-  
-  var body: some View {
-    Button(action: { handleButtonTapped() }) {
-      cardContent
-    }
-    .buttonStyle(.plain)
-    .scaleEffect(isPressed ? 0.96 : (isHovering ? 1.03 : 1.0))
-    .shadow(color: isHovering ? color.opacity(0.2) : .clear, radius: 10)
-    .animation(.easeOut(duration: 0.2), value: isHovering)
-    .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
-    .pointerOnHover { hovering in
-      withAnimation(.easeOut(duration: 0.15)) {
-        isHovering = hovering
-      }
-    }
-    .staggeredAppear(index: index)
-  }
-  
-  private var cardContent: some View {
-    VStack(alignment: .leading, spacing: UIConstants.Spacing.small) {
-      HStack {
-        Image(systemName: icon)
-          .font(.title3)
-          .foregroundStyle(color)
-        Spacer()
-        
-        if isHovering {
-          Image(systemName: "arrow.up.right")
-            .font(.caption)
-            .foregroundStyle(color.opacity(0.7))
-            .transition(.scale.combined(with: .opacity))
-        }
-      }
-      
-      Spacer()
-      
-      Text(value)
-        .font(.title2)
-        .fontWeight(.bold)
-        .foregroundStyle(color)
-        .contentTransition(.numericText())
-      
-      HStack(spacing: 4) {
-        Text(title)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-        
-        if isHovering {
-          Text("• \(hint)")
-            .font(.caption)
-            .foregroundStyle(color.opacity(0.8))
-            .transition(.move(edge: .leading).combined(with: .opacity))
-        }
-      }
-    }
-    .frame(maxWidth: .infinity, minHeight: 100, alignment: .leading)
-    .padding(UIConstants.Spacing.medium)
-    .background(
-      RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
-        .fill(color.opacity(isHovering ? 0.15 : 0.08))
-        .overlay(
-          RoundedRectangle(cornerRadius: UIConstants.CornerRadius.medium)
-            .stroke(color.opacity(isHovering ? 0.4 : 0.15), lineWidth: 1)
-        )
-    )
-  }
-  
-  private func handleButtonTapped() {
-    withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
-      isPressed = true
-    }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-        isPressed = false
-      }
-      action()
-    }
   }
 }
 

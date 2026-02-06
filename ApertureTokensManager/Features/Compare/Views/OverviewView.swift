@@ -121,113 +121,36 @@ struct OverviewView: View {
   // MARK: - Summary Cards
   
   private var summaryCardsGrid: some View {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
-      SummaryCard(
+    HStack(spacing: 16) {
+      StatCard(
         title: "Tokens Ajoutés",
-        count: changes.added.count,
+        value: "\(changes.added.count)",
+        subtitle: "nouveaux tokens",
         color: .green,
         icon: "plus.circle.fill",
-        index: 0,
-        onTap: { onTabTapped(.added) }
+        action: { onTabTapped(.added) }
       )
-      SummaryCard(
+      .staggeredAppear(index: 0)
+      
+      StatCard(
         title: "Tokens Supprimés",
-        count: changes.removed.count,
+        value: "\(changes.removed.count)",
+        subtitle: "tokens retirés",
         color: .red,
         icon: "minus.circle.fill",
-        index: 1,
-        onTap: { onTabTapped(.removed) }
+        action: { onTabTapped(.removed) }
       )
-      SummaryCard(
+      .staggeredAppear(index: 1)
+      
+      StatCard(
         title: "Tokens Modifiés",
-        count: changes.modified.count,
+        value: "\(changes.modified.count)",
+        subtitle: "couleurs changées",
         color: .orange,
         icon: "pencil.circle.fill",
-        index: 2,
-        onTap: { onTabTapped(.modified) }
+        action: { onTabTapped(.modified) }
       )
-    }
-  }
-}
-
-// MARK: - Summary Card
-
-private struct SummaryCard: View {
-  let title: String
-  let count: Int
-  let color: Color
-  let icon: String
-  let index: Int
-  let onTap: () -> Void
-  
-  @State private var isVisible = false
-  @State private var isHovering = false
-  @State private var isPressed = false
-  @State private var iconBounce = false
-  
-  var body: some View {
-    VStack(spacing: 8) {
-      Image(systemName: icon)
-        .font(.largeTitle)
-        .foregroundStyle(color)
-        .scaleEffect(iconBounce ? 1.15 : 1.0)
-        .rotationEffect(.degrees(iconBounce ? -5 : 0))
-      
-      Text("\(count)")
-        .font(.title)
-        .fontWeight(.bold)
-        .foregroundStyle(color)
-        .contentTransition(.numericText())
-      
-      Text(title)
-        .font(.headline)
-        .multilineTextAlignment(.center)
-    }
-    .frame(maxWidth: .infinity, minHeight: 120)
-    .padding()
-    .background(
-      RoundedRectangle(cornerRadius: 12)
-        .fill(color.opacity(isHovering ? 0.15 : 0.1))
-        .overlay(
-          RoundedRectangle(cornerRadius: 12)
-            .stroke(color.opacity(isHovering ? 0.5 : 0.3), lineWidth: isHovering ? 2 : 1)
-        )
-        .shadow(color: isHovering ? color.opacity(0.2) : .clear, radius: 8)
-    )
-    .scaleEffect(isPressed ? 0.96 : (isHovering ? 1.03 : 1.0))
-    .animation(.easeOut(duration: 0.2), value: isHovering)
-    .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
-    .pointerOnHover { hovering in handleHover(hovering) }
-    .onTapGesture { handleTap() }
-    .staggeredAppear(index: index)
-  }
-  
-  private func handleHover(_ hovering: Bool) {
-    isHovering = hovering
-    guard hovering else { return }
-    bounceIcon()
-  }
-  
-  private func handleTap() {
-    withAnimation(.spring(response: 0.1, dampingFraction: 0.6)) {
-      isPressed = true
-    }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
-        isPressed = false
-      }
-      onTap()
-    }
-  }
-  
-  private func bounceIcon() {
-    withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
-      iconBounce = true
-    }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-      withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-        iconBounce = false
-      }
+      .staggeredAppear(index: 2)
     }
   }
 }

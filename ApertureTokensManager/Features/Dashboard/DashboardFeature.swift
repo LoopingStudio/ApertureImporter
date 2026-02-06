@@ -36,11 +36,11 @@ struct DashboardFeature: Sendable {
     @CasePathable
     enum Delegate: Equatable, Sendable {
       case compareWithBase(tokens: [TokenNode], metadata: TokenMetadata)
+      case goToImport
     }
 
     @CasePathable
     enum Internal: Equatable, Sendable {
-      case baseCleared
     }
 
     @CasePathable
@@ -52,6 +52,7 @@ struct DashboardFeature: Sendable {
       case exportButtonTapped
       case openFileButtonTapped
       case tokenCountTapped
+      case goToImportTapped
     }
   }
 
@@ -63,18 +64,11 @@ struct DashboardFeature: Sendable {
       switch action {
       case .binding: .none
       case .delegate: .none
-      case .internal(let action): handleInternalAction(action, state: &state)
+      case .internal: .none
       case .tokenBrowser: .none
       case .view(let action): handleViewAction(action, state: &state)
       }
     }
     .ifLet(\.$tokenBrowser, action: \.tokenBrowser) { TokenBrowserFeature() }
-  }
-  
-  private func handleInternalAction(_ action: Action.Internal, state: inout State) -> Effect<Action> {
-    switch action {
-    case .baseCleared:
-      return .none
-    }
   }
 }

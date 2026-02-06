@@ -62,7 +62,7 @@ struct AnalysisView: View {
         VStack(spacing: 24) {
           // Instructions
           if !store.hasTokensLoaded {
-            warningCard(
+            WarningCard(
               icon: "exclamationmark.triangle.fill",
               title: "Aucun Design System chargé",
               message: "Chargez d'abord un fichier de tokens dans l'onglet Dashboard pour pouvoir analyser son utilisation.",
@@ -71,13 +71,9 @@ struct AnalysisView: View {
           }
           
           // Directories Section
-          VStack(alignment: .leading, spacing: 12) {
-            HStack {
-              Text("Dossiers à analyser")
-                .font(.headline)
-              
-              Spacer()
-              
+          SectionCard(
+            title: "Dossiers à analyser",
+            trailing: {
               Button {
                 send(.addDirectoryTapped)
               } label: {
@@ -85,34 +81,24 @@ struct AnalysisView: View {
               }
               .controlSize(.small)
             }
-            
+          ) {
             if store.directoriesToScan.isEmpty {
               emptyDirectoriesCard
             } else {
               directoriesList
             }
           }
-          .padding()
-          .background(Color(.controlBackgroundColor).opacity(0.5))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
           
           // Export Filters Section (readonly, shared with TokenFeature)
-          VStack(alignment: .leading, spacing: 12) {
-            HStack {
-              Text("Filtres d'export appliqués")
-                .font(.headline)
-              
-              Spacer()
-              
+          SectionCard(
+            title: "Filtres d'export appliqués",
+            subtitle: "Seuls les tokens qui seraient exportés sont analysés",
+            trailing: {
               Text("Configurer dans l'onglet Importer")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            
-            Text("Seuls les tokens qui seraient exportés sont analysés")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            
+          ) {
             HStack(spacing: 8) {
               FilterBadge(
                 label: "Exclure Utility",
@@ -133,15 +119,9 @@ struct AnalysisView: View {
               )
             }
           }
-          .padding()
-          .background(Color(.controlBackgroundColor).opacity(0.5))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
           
           // Options Section
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Options de scan")
-              .font(.headline)
-            
+          SectionCard(title: "Options de scan") {
             Toggle("Ignorer les fichiers de test", isOn: $store.config.ignoreTestFiles)
             Toggle("Ignorer les fichiers de preview", isOn: $store.config.ignorePreviewFiles)
             
@@ -156,9 +136,6 @@ struct AnalysisView: View {
               }
             }
           }
-          .padding()
-          .background(Color(.controlBackgroundColor).opacity(0.5))
-          .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .padding()
         .frame(maxWidth: 600)
@@ -190,85 +167,26 @@ struct AnalysisView: View {
   
   @ViewBuilder
   private var emptyDirectoriesCard: some View {
-    VStack(spacing: 8) {
-      Image(systemName: "folder")
-        .font(.largeTitle)
-        .foregroundStyle(.secondary)
-      
-      Text("Aucun dossier sélectionné")
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-      
-      Text("Ajoutez les dossiers de vos projets Swift qui utilisent le design system")
-        .font(.caption)
-        .foregroundStyle(.tertiary)
-        .multilineTextAlignment(.center)
-    }
-    .frame(maxWidth: .infinity)
-    .padding(.vertical, 24)
-    .background(Color(.controlBackgroundColor).opacity(0.3))
-    .clipShape(RoundedRectangle(cornerRadius: 8))
+    EmptyStateCard(
+      icon: "folder",
+      title: "Aucun dossier sélectionné",
+      message: "Ajoutez les dossiers de vos projets Swift qui utilisent le design system"
+    )
   }
   
   @ViewBuilder
   private var directoriesList: some View {
     VStack(spacing: 8) {
       ForEach(store.directoriesToScan) { directory in
-        HStack {
-          Image(systemName: "folder.fill")
-            .foregroundStyle(.blue)
-          
-          VStack(alignment: .leading, spacing: 2) {
-            Text(directory.name)
-              .font(.subheadline)
-              .fontWeight(.medium)
-            
-            Text(directory.url.path)
-              .font(.caption)
-              .foregroundStyle(.secondary)
-              .lineLimit(1)
-              .truncationMode(.middle)
-          }
-          
-          Spacer()
-          
-          Button {
-            send(.removeDirectory(directory.id))
-          } label: {
-            Image(systemName: "xmark.circle.fill")
-              .foregroundStyle(.secondary)
-          }
-          .buttonStyle(.plain)
-        }
-        .padding(8)
-        .background(Color(.controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        DirectoryRow(
+          name: directory.name,
+          path: directory.url.path,
+          onRemove: { send(.removeDirectory(directory.id)) }
+        )
       }
     }
   }
   
-  @ViewBuilder
-  private func warningCard(icon: String, title: String, message: String, color: Color) -> some View {
-    HStack(spacing: 12) {
-      Image(systemName: icon)
-        .font(.title2)
-        .foregroundStyle(color)
-      
-      VStack(alignment: .leading, spacing: 4) {
-        Text(title)
-          .font(.headline)
-        Text(message)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-      
-      Spacer()
-    }
-    .padding()
-    .background(color.opacity(0.1))
-    .clipShape(RoundedRectangle(cornerRadius: 12))
-  }
-
   // MARK: - Analysis Content
 
   @ViewBuilder
@@ -356,28 +274,6 @@ struct AnalysisView: View {
         onToggleCategory: { send(.toggleOrphanCategory($0)) }
       )
     }
-  }
-}
-
-// MARK: - Filter Badge
-
-private struct FilterBadge: View {
-  let label: String
-  let isActive: Bool
-  let color: Color
-  
-  var body: some View {
-    HStack(spacing: 4) {
-      Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
-        .font(.caption2)
-      Text(label)
-        .font(.caption)
-    }
-    .foregroundStyle(isActive ? color : .secondary)
-    .padding(.horizontal, 8)
-    .padding(.vertical, 4)
-    .background(isActive ? color.opacity(0.15) : Color(.controlBackgroundColor))
-    .clipShape(Capsule())
   }
 }
 
