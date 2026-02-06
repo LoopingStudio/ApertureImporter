@@ -34,6 +34,7 @@ struct AnalysisView: View {
 
         if store.report != nil {
           Button("Nouvelle Analyse") { send(.clearResultsTapped) }
+            .buttonStyle(.glass)
             .controlSize(.small)
             .transition(.asymmetric(
               insertion: .scale(scale: 0.9).combined(with: .opacity),
@@ -155,7 +156,7 @@ struct AnalysisView: View {
             }
             Text(store.isAnalyzing ? "Analyse en cours..." : "Lancer l'analyse")
           }
-          .buttonStyle(.borderedProminent)
+          .buttonStyle(.glassProminent)
           .controlSize(.large)
           .disabled(store.isAnalyzing)
           .padding()
